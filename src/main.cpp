@@ -1,4 +1,5 @@
 #include "vex.h"
+#include "robotConfig.h"
 
 // A global instance of competition
 vex::competition competition;
