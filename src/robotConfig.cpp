@@ -21,8 +21,8 @@ vex::motor_group rightBaseMotors(rightFrontBase, rightMiddleBase, rightBackBase)
 
 //// Aux motors ////
 // Intake
-vex::motor collectionMotor(vex::PORT6, vex::gearSetting::ratio6_1);
-vex::motor conveyerMotor(vex::PORT20, vex::gearSetting::ratio18_1);
+vex::motor collectionMotor(vex::PORT6, vex::gearSetting::ratio6_1, true);
+vex::motor conveyerMotor(vex::PORT20, vex::gearSetting::ratio18_1, true);
 
 //// Pneumatics ////
 // Clamp

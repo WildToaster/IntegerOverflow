@@ -1,4 +1,6 @@
 #include "drivetrain.h"
+#include <cmath>
+#include <algorithm>
 
 Drivetrain::Drivetrain(vex::motor_group& leftMotors, vex::motor_group& rightMotors, float wheelDiameter, float wheelTrack, float gearing):
     leftMotors(leftMotors), // Sets the internal leftMotors property equal to the leftMotors parameter
@@ -9,19 +11,43 @@ Drivetrain::Drivetrain(vex::motor_group& leftMotors, vex::motor_group& rightMoto
 
 void Drivetrain::moveCurvatureVoltage(float straightSpeed, float turnSpeed) {
     // Using spin for voltage bypasses internal motor PID, which is better for driving.
-    float leftMotorSpeed = 12000 * (straightSpeed + turnSpeed);
-    float rightMotorSpeed = 12000 * (straightSpeed - turnSpeed);
+
+    float maxOutput = std::copysign(std::max(std::abs(straightSpeed), std::abs(turnSpeed)), straightSpeed);
     
-    if (leftMotorSpeed == 0) {
-        leftMotors.stop();
+    float leftOutput;
+    float rightOutput;
+
+    // Only subtract from the max output to make turns more controllable
+    if (straightSpeed >= 0) {
+        if (turnSpeed >= 0) {
+            leftOutput = maxOutput;
+            rightOutput = straightSpeed - turnSpeed;
+        } else {
+            leftOutput = straightSpeed + turnSpeed;
+            rightOutput = maxOutput;
+        }
     } else {
-        leftMotors.spin(vex::directionType::fwd, leftMotorSpeed, vex::voltageUnits::mV);
+        if (turnSpeed >= 0) {
+            leftOutput = straightSpeed + turnSpeed;
+            rightOutput = maxOutput;
+        } else {
+            leftOutput = maxOutput;
+            rightOutput = straightSpeed - turnSpeed;
+        }
     }
 
-    if (rightMotorSpeed == 0) {
+    if (leftOutput == 0) {
+        leftMotors.stop();
+    } else {
+        // Divide by 100 to get into range of -1.0 to 1
+        leftMotors.spin(vex::directionType::fwd, leftOutput / 100 * 12000, vex::voltageUnits::mV);
+    }
+
+    if (rightOutput == 0) {
         rightMotors.stop();
     } else {
-        rightMotors.spin(vex::directionType::fwd, rightMotorSpeed, vex::voltageUnits::mV);
+        // Divide by 100 to get into range of -1.0 to 1
+        rightMotors.spin(vex::directionType::fwd, rightOutput / 100 * 12000, vex::voltageUnits::mV);
     }
 }
 
