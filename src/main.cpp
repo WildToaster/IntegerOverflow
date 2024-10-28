@@ -9,7 +9,6 @@ using namespace config;
 Drivetrain drive(leftBaseMotors, rightBaseMotors, 3.25, 13.75, 36.0 / 48.0);
 
 void autonomous() {
-    printf("hi\n");
     printf("Selected route %d\n", selector::selectedRoute);
 }
 
