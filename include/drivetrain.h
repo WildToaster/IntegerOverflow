@@ -26,6 +26,9 @@ vex::motor_group& rightMotors;
 void setStraightSpeed(float speed);
 void setTurnSpeed(float speed);
 
+float getLeftDistance();
+float getRightDistance();
+
 float wheelCircumference;
 float wheelTrack;
 float gearing;

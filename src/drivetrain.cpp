@@ -74,14 +74,22 @@ void Drivetrain::setTurnSpeed(float speed) {
     rightMotors.spin(vex::directionType::fwd, -speed, vex::velocityUnits::pct);
 }
 
+float Drivetrain::getLeftDistance() {
+    return leftMotors.position(vex::rotationUnits::rev) * gearing * wheelCircumference;
+}
+
+float Drivetrain::getRightDistance() {
+    return rightMotors.position(vex::rotationUnits::rev) * gearing * wheelCircumference;
+}
+
 // Distance is in inches
-void Drivetrain::moveDistance(float distance, float maxspeed) {
+void Drivetrain::moveDistance(float distance, float maxSpeed) {
     // The controller will not move for distances smaller than this.
     const float minDist = 0.5;
-    const float maxEndVelocity = 0.2 / 12; // Feet / 20 msec
+    const float maxEndOutput = 15; // Feet / 20 msec
 
-    const float startLeftPos = leftMotors.position(vex::rotationUnits::rev);
-    const float startRightPos = rightMotors.position(vex::rotationUnits::rev);
+    const float startLeftPos = getLeftDistance();
+    const float startRightPos = getRightDistance();
 
     pid::PIDPacket pidPacket;
     pidPacket.lastError = distance;
@@ -97,8 +105,7 @@ void Drivetrain::moveDistance(float distance, float maxspeed) {
     pidPacket.lastTime = brain.Timer.system();
 
     while (!closeToTarget) {
-        float averageMotorPos = (leftMotors.position(vex::rotationUnits::rev) - startLeftPos + rightMotors.position(vex::rotationUnits::rev) - startRightPos) / 2;
-        float distanceTraveled = wheelCircumference * averageMotorPos;
+        float distanceTraveled = (getLeftDistance() - startLeftPos + getRightDistance() - startRightPos) / 2;
         error = distance - distanceTraveled;
 
         usedTime += 20;
@@ -108,12 +115,55 @@ void Drivetrain::moveDistance(float distance, float maxspeed) {
         errorHistory.push_back(error);
         outputHistory.push_back(pidPacket.output / 100);
 
-        setStraightSpeed(pidPacket.output * (maxspeed / 100));
+        setStraightSpeed(pidPacket.output * (maxSpeed / 100));
 
-        closeToTarget = std::abs(error) < minDist && std::abs(error - pidPacket.lastError) < maxEndVelocity;
+        closeToTarget = std::abs(error) < minDist && std::abs(error - pidPacket.lastError) < maxEndOutput;
         vex::this_thread::sleep_for(20);
     }
 
     stop();
     pid::graphPID(brain, errorHistory, outputHistory, distance, error, usedTime);
+}
+
+void Drivetrain::turnAngle(float degrees, float maxSpeed) {
+    // The controller will not move for distances smaller than this.
+    const float minDist = 0.5;
+    const float maxEndOutput = 15;
+
+    const float startLeftPos = leftMotors.position(vex::rotationUnits::rev);
+    const float startRightPos = rightMotors.position(vex::rotationUnits::rev);
+
+    pid::PIDPacket pidPacket;
+    pidPacket.lastError = degrees;
+
+    // For graphing
+    std::vector<float> errorHistory;
+    std::vector<float> outputHistory;
+    float usedTime = 0;
+
+    float error = degrees;
+    bool closeToTarget = std::abs(error) < minDist;
+
+    pidPacket.lastTime = brain.Timer.system();
+
+    while (!closeToTarget) {
+        float averageMotorPos = (leftMotors.position(vex::rotationUnits::rev) - startLeftPos + rightMotors.position(vex::rotationUnits::rev) - startRightPos) / 2;
+        float distanceTraveled = wheelCircumference * averageMotorPos;
+        error = degrees - distanceTraveled;
+
+        usedTime += 20;
+        printf("dt %f\n", brain.Timer.system() - pidPacket.lastTime);
+        pidPacket = pid::pidStep(error, brain.Timer.system(), pidPacket, distanceGains);
+
+        errorHistory.push_back(error);
+        outputHistory.push_back(pidPacket.output / 100);
+
+        setStraightSpeed(pidPacket.output * (maxSpeed / 100));
+
+        closeToTarget = std::abs(error) < minDist && std::abs(pidPacket.output) < maxEndOutput;
+        vex::this_thread::sleep_for(20);
+    }
+
+    stop();
+    pid::graphPID(brain, errorHistory, outputHistory, degrees, error, usedTime);
 }
