@@ -6,10 +6,14 @@
 
 using namespace config;
 
-Drivetrain drive(leftBaseMotors, rightBaseMotors, 3.25, 13.75, 36.0 / 48.0);
+pid::PIDGains distanceGains({2.35, 1.46, 15, 2});
+
+Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, 3.25, 13.75, 36.0 / 48.0, distanceGains);
 
 void autonomous() {
+    selector::stop();
     printf("Selected route %d\n", selector::selectedRoute);
+    drive.moveDistance(24);
 }
 
 void userControl() {
