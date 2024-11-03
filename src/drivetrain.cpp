@@ -2,14 +2,16 @@
 #include <cmath>
 #include <algorithm>
 
-Drivetrain::Drivetrain(vex::brain& brain, vex::motor_group& leftMotors, vex::motor_group& rightMotors, float wheelDiameter, float wheelTrack, float gearing, pid::PIDGains distanceGains):
+Drivetrain::Drivetrain(vex::brain& brain, vex::motor_group& leftMotors, vex::motor_group& rightMotors, vex::inertial& inertial, float wheelDiameter, float wheelTrack, float gearing, pid::PIDGains distanceGains, pid::PIDGains turnGains):
     brain(brain),
     leftMotors(leftMotors), // Sets the internal leftMotors property equal to the leftMotors parameter
     rightMotors(rightMotors),
+    inertial(inertial),
     wheelCircumference(wheelDiameter * 3.141592653589),
     wheelTrack(wheelTrack),
     gearing(gearing),
-    distanceGains(distanceGains) {}
+    distanceGains(distanceGains),
+    turnGains(turnGains) {}
 
 void Drivetrain::moveCurvatureVoltage(float straightSpeed, float turnSpeed) {
     // Using spin for voltage bypasses internal motor PID, which is better for driving.
@@ -127,11 +129,12 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
 
 void Drivetrain::turnAngle(float degrees, float maxSpeed) {
     // The controller will not move for distances smaller than this.
-    const float minDist = 0.5;
-    const float maxEndOutput = 15;
+    const float minDist = 1;
+    const float maxEndOutput = 10;
 
-    const float startLeftPos = leftMotors.position(vex::rotationUnits::rev);
-    const float startRightPos = rightMotors.position(vex::rotationUnits::rev);
+    float startAngle = inertial.rotation(vex::rotationUnits::deg);
+
+    printf("startangle %f\n", startAngle);
 
     pid::PIDPacket pidPacket;
     pidPacket.lastError = degrees;
@@ -147,18 +150,16 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
     pidPacket.lastTime = brain.Timer.system();
 
     while (!closeToTarget) {
-        float averageMotorPos = (leftMotors.position(vex::rotationUnits::rev) - startLeftPos + rightMotors.position(vex::rotationUnits::rev) - startRightPos) / 2;
-        float distanceTraveled = wheelCircumference * averageMotorPos;
-        error = degrees - distanceTraveled;
+        float currentAngle = inertial.rotation(vex::rotationUnits::deg) - startAngle;
+        error = degrees - currentAngle;
 
         usedTime += 20;
-        printf("dt %f\n", brain.Timer.system() - pidPacket.lastTime);
-        pidPacket = pid::pidStep(error, brain.Timer.system(), pidPacket, distanceGains);
+        pidPacket = pid::pidStep(error, brain.Timer.system(), pidPacket, turnGains);
 
         errorHistory.push_back(error);
         outputHistory.push_back(pidPacket.output / 100);
 
-        setStraightSpeed(pidPacket.output * (maxSpeed / 100));
+        setTurnSpeed(pidPacket.output * (maxSpeed / 100));
 
         closeToTarget = std::abs(error) < minDist && std::abs(pidPacket.output) < maxEndOutput;
         vex::this_thread::sleep_for(20);

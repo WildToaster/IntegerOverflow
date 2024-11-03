@@ -19,6 +19,8 @@ vex::motor rightMiddleBase(vex::PORT9, vex::gearSetting::ratio6_1);
 vex::motor rightBackBase(vex::PORT8, vex::gearSetting::ratio6_1);
 vex::motor_group rightBaseMotors(rightFrontBase, rightMiddleBase, rightBackBase);
 
+vex::inertial inertial(vex::PORT2);
+
 //// Aux motors ////
 // Intake
 vex::motor collectionMotor(vex::PORT6, vex::gearSetting::ratio6_1, true);

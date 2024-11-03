@@ -7,18 +7,24 @@
 using namespace config;
 
 pid::PIDGains distanceGains({2.35, 0.46, 15, 2});
-pid::PIDGains turnGains({2.35, 1.46, 15, 2});
+pid::PIDGains turnGains({0.51, 0.031, 15, 2});
 
-Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, 3.25 * 1.020833, 13.75, 36.0 / 48.0, distanceGains);
+Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25 * 1.020833, 13.75, 36.0 / 48.0, distanceGains, turnGains);
 
 void autonomous() {
     selector::stop();
     printf("Selected route %d\n", selector::selectedRoute);
-    drive.moveDistance(48);
+
+    while (inertial.isCalibrating()) {
+        vex::this_thread::sleep_for(20);
+    }
+
+    drive.turnAngle(180);
 }
 
 void userControl() {
     while (true) {
+        printf("inertial %f %d\n", inertial.rotation(vex::rotationUnits::deg), (int) inertial.isCalibrating());
         /// Drive Code ///
         int controllerForward = controller.Axis3.position();
         int controllerTurn = controller.Axis4.position() * 0.85;
@@ -66,7 +72,6 @@ void userControl() {
 }
 
 int main() {
-    printf("hi1\n");
     // Set up callbacks for autonomous and driver control periods.
     competition.autonomous(autonomous);
     competition.drivercontrol(userControl);

@@ -14,6 +14,8 @@ extern vex::motor leftMiddleBase;
 extern vex::motor leftBackBase;
 extern vex::motor_group leftBaseMotors;
 
+extern vex::inertial inertial;
+
 // Right
 extern vex::motor rightFrontBase;
 extern vex::motor rightMiddleBase;

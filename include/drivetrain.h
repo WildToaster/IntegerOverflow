@@ -7,7 +7,7 @@ class Drivetrain {
 public:
 // Gearing is (Motor gear / Output gear)
 // Wheel diameter and track is in inches
-Drivetrain(vex::brain& brain, vex::motor_group& leftMotors, vex::motor_group& rightMotors, float wheelDiameter, float wheelTrack, float gearing, pid::PIDGains distanceGains);
+Drivetrain(vex::brain& brain, vex::motor_group& leftMotors, vex::motor_group& rightMotors, vex::inertial& inertial, float wheelDiameter, float wheelTrack, float gearing, pid::PIDGains distanceGains, pid::PIDGains turnGains);
 
 // Positive turn speed = Clockwise
 void moveCurvatureVoltage(float straightSpeed, float turnSpeed);
@@ -23,6 +23,8 @@ vex::brain& brain;
 vex::motor_group& leftMotors;
 vex::motor_group& rightMotors;
 
+vex::inertial& inertial;
+
 void setStraightSpeed(float speed);
 void setTurnSpeed(float speed);
 
@@ -34,5 +36,6 @@ float wheelTrack;
 float gearing;
 
 pid::PIDGains distanceGains;
+pid::PIDGains turnGains;
 
 };
