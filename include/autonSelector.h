@@ -8,10 +8,10 @@ namespace selector {
 */
 enum AutonRoute {
     NONE,
-    RED_1,
-    RED_2,
-    BLUE_1,
-    BLUE_2,
+    RED_LEFT,
+    RED_RIGHT,
+    BLUE_LEFT,
+    BLUE_RIGHT,
     SKILLS
 };
 

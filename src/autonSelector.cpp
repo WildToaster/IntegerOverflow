@@ -107,24 +107,24 @@ void autonSelector() {
         }
 
         // If red 1 is selected, change the color to green.
-        int red1Color = selectedRoute == AutonRoute::RED_1 ? selectedColor : unselectedColor;
-        if (button(80, 0, 80, 80, "Red 1", red1Color)) {
-            selectedRoute = AutonRoute::RED_1;
+        int redLeftColor = selectedRoute == AutonRoute::RED_LEFT ? selectedColor : unselectedColor;
+        if (button(80, 0, 80, 80, "Red L", redLeftColor)) {
+            selectedRoute = AutonRoute::RED_LEFT;
         }
 
-        int red2Color = selectedRoute == AutonRoute::RED_2 ? selectedColor : unselectedColor;
-        if (button(160, 0, 80, 80, "Red 2", red2Color)) {
-            selectedRoute = AutonRoute::RED_2;
+        int redRightColor = selectedRoute == AutonRoute::RED_RIGHT ? selectedColor : unselectedColor;
+        if (button(160, 0, 80, 80, "Red R", redRightColor)) {
+            selectedRoute = AutonRoute::RED_RIGHT;
         }
 
-        int blue1Color = selectedRoute == AutonRoute::BLUE_1 ? selectedColor : unselectedColor;
-        if (button(240, 0, 80, 80, "Blue 1", blue1Color)) {
-            selectedRoute = AutonRoute::BLUE_1;
+        int blueLeftColor = selectedRoute == AutonRoute::BLUE_LEFT ? selectedColor : unselectedColor;
+        if (button(240, 0, 80, 80, "Blue L", blueLeftColor)) {
+            selectedRoute = AutonRoute::BLUE_LEFT;
         }
 
-        int blue2Color = selectedRoute == AutonRoute::BLUE_2 ? selectedColor : unselectedColor;
-        if (button(320, 0, 80, 80, "Blue 2", blue2Color)) {
-            selectedRoute = AutonRoute::BLUE_2;
+        int blueRightColor = selectedRoute == AutonRoute::BLUE_RIGHT ? selectedColor : unselectedColor;
+        if (button(320, 0, 80, 80, "Blue R", blueRightColor)) {
+            selectedRoute = AutonRoute::BLUE_RIGHT;
         }
 
         int skillsColor = selectedRoute == AutonRoute::SKILLS ? selectedColor : unselectedColor;
