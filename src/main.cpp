@@ -6,7 +6,7 @@
 
 using namespace config;
 
-pid::PIDGains distanceGains({2.35, 0.46, 15, 20, 2});
+pid::PIDGains distanceGains({6, 2, 15, 12, 2});
 pid::PIDGains turnGains({0.61, 0.8, 15, 40, 2});
 
 Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25 * 1.020833, 13.75, 36.0 / 48.0, distanceGains, turnGains);
@@ -36,7 +36,7 @@ void blueRight() {
 }
 
 void skills() {
-    drive.turnAngle(360);
+    drive.moveDistance(24);
 }
 
 void autonomous() {
