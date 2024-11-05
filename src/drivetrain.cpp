@@ -151,6 +151,7 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
     while (!closeToTarget) {
         float currentAngle = inertial.rotation(vex::rotationUnits::deg) - startAngle;
         error = degrees - currentAngle;
+        printf("error %f %f\n", error, pidPacket.output);
 
         usedTime += 20;
         pidPacket = pid::pidStep(error, brain.Timer.system(), pidPacket, turnGains);
