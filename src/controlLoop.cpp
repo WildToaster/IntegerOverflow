@@ -11,10 +11,12 @@ PIDPacket pidStep(float currentError, float currentTime, const PIDPacket& previo
     PIDPacket result;
     result.slew = previousPacket.slew;
 
-    result.errorSum = previousPacket.errorSum + currentError / dt;
+    if (currentError <= gains.antiWindup)
+      result.errorSum = previousPacket.errorSum + currentError / dt;
 
     // If the error has a zero crossing, reset the error sum to prevent windup
-    if (currentError > 0 != previousPacket.lastError > 0) result.errorSum = 0;
+    if (currentError > 0 != previousPacket.lastError > 0 || currentError > gains.antiWindup)
+      result.errorSum = 0;
 
     float p = gains.p * currentError;
     float i = gains.i * result.errorSum;
@@ -84,6 +86,8 @@ void graphPID(vex::brain& brain, std::vector<float> errorHistory, std::vector<fl
     
     brain.Screen.drawLine(x, maxY - std::abs(powerHistory.at(i)) * (maxY - minY), x + (float)(maxX - minX) / errorHistory.size(), maxY - std::abs(powerHistory.at(i + 1)) * (maxY - minY));
   }
+
+  printf("done graphing\n");
 }
 
 }

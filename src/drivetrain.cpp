@@ -111,7 +111,6 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
         error = distance - distanceTraveled;
 
         usedTime += 20;
-        printf("dt %f\n", brain.Timer.system() - pidPacket.lastTime);
         pidPacket = pid::pidStep(error, brain.Timer.system(), pidPacket, distanceGains);
 
         errorHistory.push_back(error);

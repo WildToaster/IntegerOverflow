@@ -17,9 +17,10 @@ struct PIDGains {
     double p = 0;
     double i = 0;
     double d = 0;
+    double antiWindup = 0;
     double slewRate = 0;
 
-    PIDGains(double p, double i, double d, double slewRate): p(p), i(i), d(d), slewRate(slewRate) {}
+    PIDGains(double p, double i, double d, double antiWindup, double slewRate): p(p), i(i), d(d), antiWindup(antiWindup), slewRate(slewRate) {}
 };
 
 // The output will always be between -100 and 100.
