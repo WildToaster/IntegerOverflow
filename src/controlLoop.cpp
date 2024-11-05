@@ -11,7 +11,7 @@ PIDPacket pidStep(float currentError, float currentTime, const PIDPacket& previo
     PIDPacket result;
     result.slew = previousPacket.slew;
 
-    if (currentError <= gains.antiWindup)
+    if (std::abs(currentError) <= gains.antiWindup)
       result.errorSum = previousPacket.errorSum + currentError / dt;
 
     // If the error has a zero crossing, reset the error sum to prevent windup
