@@ -6,25 +6,58 @@
 
 using namespace config;
 
-pid::PIDGains distanceGains({2.35, 0.46, 15, 2});
-pid::PIDGains turnGains({0.51, 0.031, 15, 2});
+pid::PIDGains distanceGains({2.35, 0.46, 15, 20, 2});
+pid::PIDGains turnGains({0.51, 0.031, 15, 6, 2});
 
 Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25 * 1.020833, 13.75, 36.0 / 48.0, distanceGains, turnGains);
+
+void setClamp(bool clamping) {
+    leftClampPiston.set(!clamping);
+    rightClampPiston.set(!clamping);
+}
+
+void intake(int speed) {
+    collectionMotor.spin(vex::directionType::fwd, speed, vex::velocityUnits::pct);
+    conveyerMotor.spin(vex::directionType::fwd, speed, vex::velocityUnits::pct);
+}
+
+void blueRight() {
+    setClamp(false);
+    drive.moveDistance(-27, 70);
+    setClamp(true);
+
+    drive.turnAngle(-70);
+    intake(80);
+    drive.moveDistance(18);
+    
+    drive.turnAngle(-70);
+    drive.moveDistance(15);
+    drive.turnAngle(40);
+}
 
 void autonomous() {
     selector::stop();
     printf("Selected route %d\n", selector::selectedRoute);
 
+    // Wait if inertial sensor has not calibrated yet
     while (inertial.isCalibrating()) {
         vex::this_thread::sleep_for(20);
     }
 
-    drive.turnAngle(180);
+    switch (selector::selectedRoute) {
+        case selector::BLUE_RIGHT:
+            blueRight();
+            break;
+        case selector::NONE:
+            controller.rumble("."); // Notify that it is intentially doing nothing
+        default:
+            controller.rumble("..."); // Notify that no route was found
+            break;
+    }
 }
 
 void userControl() {
     while (true) {
-        printf("inertial %f %d\n", inertial.rotation(vex::rotationUnits::deg), (int) inertial.isCalibrating());
         /// Drive Code ///
         int controllerForward = controller.Axis3.position();
         int controllerTurn = controller.Axis4.position() * 0.85;
@@ -57,11 +90,9 @@ void userControl() {
 
         // Clamp
         if (controller.ButtonL1.pressing()) {
-            leftClampPiston.set(false);
-            rightClampPiston.set(false);
+            setClamp(true);
         } else if (controller.ButtonL2.pressing()) {
-            leftClampPiston.set(true);
-            rightClampPiston.set(true);
+            setClamp(false);
         }
 
         // Plow
