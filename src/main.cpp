@@ -7,7 +7,7 @@
 using namespace config;
 
 pid::PIDGains distanceGains({5, 2.2, 15, 16, 2});
-pid::PIDGains turnGains({0.51, 0.8, 15, 40, 2});
+pid::PIDGains turnGains({0.53, 0.8, 18, 40, 2});
 
 Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25 * 1.020833, 13.75, 36.0 / 48.0, distanceGains, turnGains);
 
@@ -21,22 +21,66 @@ void intake(int speed) {
     conveyerMotor.spin(vex::directionType::fwd, speed, vex::velocityUnits::pct);
 }
 
-void blueRight() {
+void redLeft() {
     setClamp(false);
-    drive.moveDistance(-27, 70);
+    drive.moveDistance(-29, 60);
     setClamp(true);
 
-    drive.turnAngle(-70);
+    drive.turnAngle(60);
     intake(80);
     drive.moveDistance(18);
     
-    drive.turnAngle(-70);
-    drive.moveDistance(15);
-    drive.turnAngle(40);
+    drive.turnAngle(80);
+    drive.moveDistance(7);
+    vex::this_thread::sleep_for(600);
+
+    drive.moveDistance(-36);
+    setClamp(false);
+    intake(0);
+    drive.moveDistance(12);
 }
 
-void skills() {
+void redRight() {
+    setClamp(false);
     drive.moveDistance(-24);
+    drive.turnAngle(45);
+    drive.moveDistance(-24);
+    drive.moveDistance(8);
+    drive.turnAngle(-45);
+    drive.moveDistance(-23, 60);
+    setClamp(true);
+    drive.moveDistance(12);
+}
+
+void blueLeft() {
+    setClamp(false);
+    drive.moveDistance(-24);
+    drive.turnAngle(-45);
+    drive.moveDistance(-24);
+    drive.moveDistance(8);
+    drive.turnAngle(45);
+    drive.moveDistance(-23, 60);
+    setClamp(true);
+    drive.moveDistance(12);
+}
+
+void blueRight() {
+    setClamp(false);
+    drive.moveDistance(-29, 60);
+    setClamp(true);
+
+    drive.turnAngle(-60);
+    intake(80);
+    drive.moveDistance(18);
+    
+    drive.turnAngle(-80);
+    drive.moveDistance(7);
+    vex::this_thread::sleep_for(600);
+    
+    drive.moveDistance(-36);
+    setClamp(false);
+    intake(0);
+    drive.moveDistance(12);
 }
 
 void autonomous() {
@@ -48,15 +92,22 @@ void autonomous() {
         vex::this_thread::sleep_for(20);
     }
 
-    skills();
-    return;
-
     switch (selector::selectedRoute) {
-        case selector::BLUE_RIGHT:
+        case selector::AutonRoute::RED_LEFT:
+            redLeft();
+            break;
+        case selector::AutonRoute::RED_RIGHT:
+            redRight();
+            break;
+        case selector::AutonRoute::BLUE_LEFT:
+            blueLeft();
+            break;
+        case selector::AutonRoute::BLUE_RIGHT:
             blueRight();
             break;
-        case selector::NONE:
+        case selector::AutonRoute::NONE:
             controller.rumble("."); // Notify that it is intentially doing nothing
+            break;
         default:
             controller.rumble("..."); // Notify that no route was found
             break;
