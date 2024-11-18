@@ -9,13 +9,14 @@ PIDPacket pidStep(float currentError, float currentTime, const PIDPacket& previo
     if (dt == 0) return previousPacket;
     
     PIDPacket result;
+    result.setpoint = previousPacket.setpoint;
     result.slew = previousPacket.slew;
 
-    if (std::abs(currentError) <= gains.antiWindup)
+    if (std::abs(currentError / previousPacket.setpoint) <= gains.antiWindup)
       result.errorSum = previousPacket.errorSum + currentError / dt;
 
     // If the error has a zero crossing, reset the error sum to prevent windup
-    if (currentError > 0 != previousPacket.lastError > 0 || currentError > gains.antiWindup)
+    if (currentError > 0 != previousPacket.lastError > 0 || std::abs(currentError / previousPacket.setpoint) > gains.antiWindup)
       result.errorSum = 0;
 
     float p = gains.p * currentError;

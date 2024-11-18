@@ -95,6 +95,7 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
 
     pid::PIDPacket pidPacket;
     pidPacket.lastError = distance;
+    pidPacket.setpoint = distance;
 
     // For graphing
     std::vector<float> errorHistory;

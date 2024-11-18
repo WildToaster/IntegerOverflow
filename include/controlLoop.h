@@ -6,6 +6,7 @@
 namespace pid {
 
 struct PIDPacket {
+    float setpoint = 0;
     float output = 0;
     float lastError = 0;
     float lastTime = 0;
