@@ -6,8 +6,8 @@
 
 using namespace config;
 
-pid::PIDGains distanceGains({5, 2.2, 15, 16, 1.2});
-pid::PIDGains turnGains({0.53, 0.8, 18, 40, 1.2});
+pid::PIDGains distanceGains({5, 2.2, 15, 15, 1.2});
+pid::PIDGains turnGains({0.53, 0.8, 18, 15, 1.2});
 
 Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25 * 1.020833, 13.75, 36.0 / 48.0, distanceGains, turnGains);
 
