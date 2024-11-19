@@ -12,11 +12,14 @@ PIDPacket pidStep(float currentError, float currentTime, const PIDPacket& previo
     result.setpoint = previousPacket.setpoint;
     result.slew = previousPacket.slew;
 
-    if (std::abs(currentError / previousPacket.setpoint) <= gains.antiWindup)
+    if (std::abs(result.errorSum) < gains.maxErrorSum)
       result.errorSum = previousPacket.errorSum + currentError / dt;
+    
+    if (std::abs(result.errorSum) > gains.maxErrorSum)
+      result.errorSum = std::copysign(gains.maxErrorSum, result.errorSum); // Copies the sign from errorSum to the maxErrorSums
 
     // If the error has a zero crossing, reset the error sum to prevent windup
-    if (currentError > 0 != previousPacket.lastError > 0 || std::abs(currentError / previousPacket.setpoint) > gains.antiWindup)
+    if (currentError > 0 != previousPacket.lastError > 0)
       result.errorSum = 0;
 
     float p = gains.p * currentError;

@@ -88,7 +88,7 @@ float Drivetrain::getRightDistance() {
 void Drivetrain::moveDistance(float distance, float maxSpeed) {
     // The controller will not move for distances smaller than this.
     const float minDist = 0.5;
-    const float maxEndOutput = 15; // Feet / 20 msec
+    const float maxEndOutput = 5; // Feet / 20 msec
 
     const float startLeftPos = getLeftDistance();
     const float startRightPos = getRightDistance();
