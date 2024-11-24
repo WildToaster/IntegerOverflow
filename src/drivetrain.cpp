@@ -130,7 +130,7 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
 void Drivetrain::turnAngle(float degrees, float maxSpeed) {
     // The controller will not move for distances smaller than this.
     const float minDist = 1;
-    const float maxEndOutput = 10;
+    const float maxEndOutput = 0.4;
 
     float startAngle = inertial.rotation(vex::rotationUnits::deg);
 
@@ -162,7 +162,7 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
 
         setTurnSpeed(pidPacket.output * (maxSpeed / 100));
 
-        closeToTarget = std::abs(error) < minDist && std::abs(pidPacket.output) < maxEndOutput;
+        closeToTarget = std::abs(error) < minDist && std::abs(error - pidPacket.lastError) < maxEndOutput;
         vex::this_thread::sleep_for(20);
     }
 

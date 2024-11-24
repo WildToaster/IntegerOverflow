@@ -7,7 +7,7 @@
 using namespace config;
 
 pid::PIDGains distanceGains({3, 2.2, 15, 18, 1.6});
-pid::PIDGains turnGains({0.53, 0.8, 18, 15, 1.6});
+pid::PIDGains turnGains({0.52, 0.8, 18, 12, 2});
 
 Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25 * 1.10590242, 13.75, 36.0 / 48.0, distanceGains, turnGains);
 
@@ -83,24 +83,6 @@ void blueRight() {
     drive.moveDistance(12);
 }
 
-void testing() {
-    // drive.moveDistance(48);
-    // vex::this_thread::sleep_for(500);
-    // drive.moveDistance(-48);
-    // vex::this_thread::sleep_for(500);
-    // drive.moveDistance(24);
-    // vex::this_thread::sleep_for(500);
-    // drive.moveDistance(-24);
-    // vex::this_thread::sleep_for(500);
-    // drive.moveDistance(12);
-    // vex::this_thread::sleep_for(500);
-    // drive.moveDistance(-12);
-    // vex::this_thread::sleep_for(500);
-    // drive.moveDistance(48, 45);
-    // vex::this_thread::sleep_for(500);
-    // drive.moveDistance(-48, 45);
-}
-
 void autonomous() {
     selector::stop();
     printf("Selected route %d\n", selector::selectedRoute);
@@ -109,9 +91,6 @@ void autonomous() {
     while (inertial.isCalibrating()) {
         vex::this_thread::sleep_for(20);
     }
-
-    testing();
-    return;
 
     switch (selector::selectedRoute) {
         case selector::AutonRoute::RED_LEFT:
