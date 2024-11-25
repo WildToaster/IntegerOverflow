@@ -34,4 +34,7 @@ vex::digital_out rightClampPiston(brain.ThreeWirePort.H);
 // Plow
 vex::digital_out plowPiston(brain.ThreeWirePort.F);
 
+//// Sensors ////
+vex::gps gpsSensor(vex::PORT5);
+
 } // namespace config

@@ -36,4 +36,7 @@ extern vex::digital_out rightClampPiston;
 // Plow
 extern vex::digital_out plowPiston;
 
+//// Sensors ////
+extern vex::gps gpsSensor;
+
 } // namespace config

@@ -2,6 +2,7 @@
 #include "robotConfig.h"
 #include "drivetrain.h"
 #include "autonSelector.h"
+#include "navigationSystem.h"
 #include <cmath>
 
 using namespace config;
