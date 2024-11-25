@@ -2,6 +2,7 @@
 
 #include "vex.h"
 #include "controlLoop.h"
+#include "navigationSystem.h"
 
 class Drivetrain {
 public:
@@ -13,6 +14,7 @@ Drivetrain(vex::brain& brain, vex::motor_group& leftMotors, vex::motor_group& ri
 void moveCurvatureVoltage(float straightSpeed, float turnSpeed);
 void moveDistance(float distance, float maxSpeed = 70);
 void turnAngle(float degrees, float maxSpeed = 70);
+void toPoint(float x, float y, bool reverse = false, float maxSpeed = 70);
 void stop();
 
 void setBrakeMode(vex::brakeType mode);
@@ -24,6 +26,7 @@ vex::motor_group& leftMotors;
 vex::motor_group& rightMotors;
 
 vex::inertial& inertial;
+NavigationSystem& nav;
 
 void setStraightSpeed(float speed);
 void setTurnSpeed(float speed);

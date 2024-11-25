@@ -8,6 +8,7 @@ Drivetrain::Drivetrain(vex::brain& brain, vex::motor_group& leftMotors, vex::mot
     leftMotors(leftMotors), // Sets the internal leftMotors property equal to the leftMotors parameter
     rightMotors(rightMotors),
     inertial(inertial),
+    nav(nav),
     wheelCircumference(wheelDiameter * 3.141592653589),
     wheelTrack(wheelTrack),
     gearing(gearing),
@@ -219,4 +220,17 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
     setBrakeMode(vex::brakeType::brake);
     stop();
     pid::graphPID(brain, errorHistory, outputHistory, degrees, error, usedTime);
+}
+
+void Drivetrain::toPoint(float x, float y, bool reverse = false, float maxSpeed = 70) {
+    Location loc = nav.getLocation();
+
+    float turn = (atan2((loc.y - y), (loc.x - x)) * 180.0 / 3.141592653589793) - loc.heading;
+
+    if (std::abs(turn) > 180) turn = 360 - std::abs(turn);
+    
+    float distance = sqrt((loc.x - x) * (loc.y - x) + (loc.y - y) * (loc.y - y));
+
+    turnAngle(turn, maxSpeed);
+    moveDistance(distance, maxSpeed);
 }
