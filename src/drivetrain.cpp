@@ -226,10 +226,14 @@ void Drivetrain::toPoint(float x, float y, bool reverse = false, float maxSpeed 
     Location loc = nav.getLocation();
 
     float turn = (atan2((loc.y - y), (loc.x - x)) * 180.0 / 3.141592653589793) - loc.heading;
+    float distance = sqrt((loc.x - x) * (loc.y - x) + (loc.y - y) * (loc.y - y));
+
+    if (reverse) {
+        distance *= -1;
+        turn += 180;
+    }
 
     if (std::abs(turn) > 180) turn = 360 - std::abs(turn);
-    
-    float distance = sqrt((loc.x - x) * (loc.y - x) + (loc.y - y) * (loc.y - y));
 
     turnAngle(turn, maxSpeed);
     moveDistance(distance, maxSpeed);
