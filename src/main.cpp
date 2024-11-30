@@ -61,7 +61,7 @@ void blueLeft() {
     vex::this_thread::sleep_for(300);
     drive.moveDistance(18);
     // drive.turnAngle(-55); Clearing out corner, cut because of time
-    drive.turnAngle(-100);
+    drive.turnAngle(-90);
     intake(80);
     drive.moveDistance(35, 40);
     intake(0);
