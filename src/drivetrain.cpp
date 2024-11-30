@@ -72,9 +72,9 @@ void Drivetrain::setStraightSpeed(float speed) {
     rightMotors.spin(vex::directionType::fwd, speed, vex::velocityUnits::pct);
 }
 
-void Drivetrain::setTurnSpeed(float speed) {
-    leftMotors.spin(vex::directionType::fwd, speed, vex::velocityUnits::pct);
-    rightMotors.spin(vex::directionType::fwd, -speed, vex::velocityUnits::pct);
+void Drivetrain::setTurnSpeed(float millivolts) {
+    leftMotors.spin(vex::directionType::fwd, millivolts, vex::voltageUnits::mV);
+    rightMotors.spin(vex::directionType::fwd, -millivolts, vex::voltageUnits::mV);
 }
 
 float Drivetrain::getLeftDistance() {
@@ -131,10 +131,10 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
             trackingPidPacket.output = straightSpeed * 0.5;
         }
 
-        // errorHistory.push_back(distanceError);
-        // outputHistory.push_back(distancePidPacket.output / 100);
-        errorHistory.push_back(trackingError * 100);
-        outputHistory.push_back(trackingPidPacket.output / 10);
+        errorHistory.push_back(distanceError);
+        outputHistory.push_back(distancePidPacket.output / 100);
+        // errorHistory.push_back(trackingError * 100);
+        // outputHistory.push_back(trackingPidPacket.output / 10);
 
         leftMotors.spin(vex::directionType::fwd, (straightSpeed + trackingPidPacket.output) * (maxSpeed / 100), vex::velocityUnits::pct);
         rightMotors.spin(vex::directionType::fwd, (straightSpeed - trackingPidPacket.output) * (maxSpeed / 100), vex::velocityUnits::pct);
@@ -151,9 +151,13 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
 void Drivetrain::turnAngle(float degrees, float maxSpeed) {
     // The controller will not move for distances smaller than this.
     const float minDist = 1;
-    const float maxEndOutput = 0.4;
+    const float maxEndOutput = 0.1;
+    const float timeoutGain = 0.00045;
+    const float timeoutStatic = 4;
 
     float startAngle = inertial.rotation(vex::rotationUnits::deg);
+    float startTime = brain.Timer.system();
+    float maxTime = (timeoutStatic + maxSpeed * degrees * timeoutGain) * 1000;
 
     printf("startangle %f\n", startAngle);
 
@@ -170,21 +174,22 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
 
     pidPacket.lastTime = brain.Timer.system();
 
-    while (!closeToTarget) {
+    while (!closeToTarget && brain.Timer.system() - startTime < maxTime) {
         float currentAngle = inertial.rotation(vex::rotationUnits::deg) - startAngle;
         error = degrees - currentAngle;
+
+        closeToTarget = std::abs(error) < minDist && std::abs(error - pidPacket.lastError) < maxEndOutput;
         printf("error %f %f\n", error, pidPacket.output);
 
-        usedTime += 20;
+        usedTime += brain.Timer.system() - pidPacket.lastTime;
         pidPacket = pid::pidStep(error, brain.Timer.system(), pidPacket, turnGains);
 
         errorHistory.push_back(error);
         outputHistory.push_back(pidPacket.output / 100);
 
-        setTurnSpeed(pidPacket.output * (maxSpeed / 100));
+        setTurnSpeed(pidPacket.output * (maxSpeed / 100) * 120);
 
-        closeToTarget = std::abs(error) < minDist && std::abs(error - pidPacket.lastError) < maxEndOutput;
-        vex::this_thread::sleep_for(20);
+        vex::this_thread::sleep_for(12);
     }
 
     stop();

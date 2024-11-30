@@ -6,10 +6,10 @@
 
 using namespace config;
 
-//                           {P, I, D, Max-I-term, Slew Rate}
-pid::PIDGains distanceGains({2.3, 2.2, 15, 15, 1.026}); // .045
-pid::PIDGains trackingGains({7.03, 0, 0.29, 20, -1});
-pid::PIDGains turnGains({0.52, 0.8, 18, 12, 2});
+//                           {P, I, D, Max-I-term, Slew Rate, Max Slew Speed}
+pid::PIDGains distanceGains({2.15, 2.2, 15, 15, 1.026, 0.01}); // .045
+pid::PIDGains trackingGains({7.03, 0, 0.29, 20, -1, -1});
+pid::PIDGains turnGains({0.62, 1, 1, 8, 1.2, 0.1});
 
 Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25 * 1.10590242, 13.75, 36.0 / 48.0, distanceGains, trackingGains, turnGains);
 
@@ -45,7 +45,7 @@ void redLeft() {
 void redRight() {
     //setClamp(true);
 
-    drive.moveDistance(-48,30);//drive to the goal
+    drive.moveDistance(-42, 100);//drive to the goal
    /* setClamp(false);
     drive.moveDistance(12);
     drive.turnAngle(-75);//turn to the 
@@ -94,13 +94,14 @@ void blueRight() {
 void autonomous() {
     selector::stop();
     printf("Selected route %d\n", selector::selectedRoute);
+    inertial.calibrate();
 
     // Wait if inertial sensor has not calibrated yet
     while (inertial.isCalibrating()) {
         vex::this_thread::sleep_for(20);
     }
 
-    drive.moveDistance(96, 70);
+    drive.turnAngle(180, 70);
     return;
 
     switch (selector::selectedRoute) {
@@ -126,6 +127,7 @@ void autonomous() {
 }
 
 void userControl() {
+    inertial.calibrate();
     while (true) {
         /// Drive Code ///
         int controllerForward = controller.Axis3.position();
@@ -166,6 +168,7 @@ void userControl() {
 
         // Plow
         plowPiston.set(controller.ButtonA.pressing());
+        printf("Inertials %f\n", inertial.rotation(vex::rotationUnits::deg));
 
         vex::wait(20, vex::msec); // Prevent hogging resources
     }

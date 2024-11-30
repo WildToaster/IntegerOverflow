@@ -42,7 +42,7 @@ PIDPacket pidStep(float currentError, float currentTime, const PIDPacket& previo
     if (result.slew < 1) {
       float slewIncrease = result.slew * gains.slewRate - result.slew;
       printf("Slew: %f %f\n", result.slew, slewIncrease);
-      if (slewIncrease > 0.01) slewIncrease = 0.01;
+      if (slewIncrease > gains.maxSlewRate) slewIncrease = gains.maxSlewRate;
       result.slew += slewIncrease;
     }
     if (result.slew > 1) result.slew = 1;
