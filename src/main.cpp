@@ -155,7 +155,6 @@ void userControl() {
 
         // Plow
         plowPiston.set(controller.ButtonA.pressing());
-        printf("Inertials %f\n", inertial.rotation(vex::rotationUnits::deg));
 
         vex::wait(20, vex::msec); // Prevent hogging resources
     }
