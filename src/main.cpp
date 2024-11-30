@@ -9,7 +9,7 @@ using namespace config;
 //                           {P, I, D, Max-I-term, Slew Rate, Max Slew Speed}
 pid::PIDGains distanceGains({2.15, 2.2, 15, 15, 1.026, 0.01}); // .045
 pid::PIDGains trackingGains({7.03, 0, 0.29, 20, -1, -1});
-pid::PIDGains turnGains({0.62, 1, 1, 8, 1.2, 0.1});
+pid::PIDGains turnGains({0.625, 1, 1, 8, 1.2, 0.1});
 
 Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25 * 1.10590242, 13.75, 36.0 / 48.0, distanceGains, trackingGains, turnGains);
 
@@ -47,7 +47,12 @@ void redRight() {
     vex::this_thread::sleep_for(300);
     setClamp(true);
     vex::this_thread::sleep_for(300);
-    drive.moveDistance(36);
+    drive.moveDistance(18);
+    // drive.turnAngle(-55); Clearing out corner, cut because of time
+    drive.turnAngle(100);
+    intake(80);
+    drive.moveDistance(35, 40);
+    intake(0);
 }
 
 void blueLeft() {

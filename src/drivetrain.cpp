@@ -152,12 +152,12 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
     // The controller will not move for distances smaller than this.
     const float minDist = 1;
     const float maxEndOutput = 0.1;
-    const float timeoutGain = 0.00045;
+    const float timeoutGain = 0.0003; // Shortened from 0.0007 as a 
     const float timeoutStatic = 4;
 
     float startAngle = inertial.rotation(vex::rotationUnits::deg);
     float startTime = brain.Timer.system();
-    float maxTime = (timeoutStatic + maxSpeed * degrees * timeoutGain) * 1000;
+    float maxTime = (timeoutStatic + maxSpeed * std::abs(degrees) * timeoutGain) * 1000;
 
     printf("startangle %f\n", startAngle);
 
