@@ -43,9 +43,11 @@ void redLeft() {
 }
 
 void redRight() {
-    drive.moveDistance(-46, 70);
+    drive.moveDistance(-47, 100);
     vex::this_thread::sleep_for(300);
     setClamp(true);
+    vex::this_thread::sleep_for(300);
+    drive.moveDistance(36);
 }
 
 void blueLeft() {
@@ -88,9 +90,6 @@ void autonomous() {
     while (inertial.isCalibrating()) {
         vex::this_thread::sleep_for(20);
     }
-
-    redRight();
-    return;
 
     switch (selector::selectedRoute) {
         case selector::AutonRoute::RED_LEFT:
