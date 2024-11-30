@@ -14,8 +14,8 @@ pid::PIDGains turnGains({0.62, 1, 1, 8, 1.2, 0.1});
 Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25 * 1.10590242, 13.75, 36.0 / 48.0, distanceGains, trackingGains, turnGains);
 
 void setClamp(bool clamping) {
-    leftClampPiston.set(!clamping);
-    rightClampPiston.set(!clamping);
+    leftClampPiston.set(clamping);
+    rightClampPiston.set(clamping);
 }
 
 void intake(int speed) {
@@ -43,21 +43,9 @@ void redLeft() {
 }
 
 void redRight() {
-    //setClamp(true);
-
-    drive.moveDistance(-42, 100);//drive to the goal
-   /* setClamp(false);
-    drive.moveDistance(12);
-    drive.turnAngle(-75);//turn to the 
-*/
-
-   /* drive.turnAngle(45);
-    drive.moveDistance(-24);
-    drive.moveDistance(8);
-    drive.turnAngle(-45);
-    drive.moveDistance(-23, 60);
+    drive.moveDistance(-46, 70);
+    vex::this_thread::sleep_for(300);
     setClamp(true);
-    drive.moveDistance(12);*/
 }
 
 void blueLeft() {
@@ -101,7 +89,7 @@ void autonomous() {
         vex::this_thread::sleep_for(20);
     }
 
-    drive.turnAngle(180, 70);
+    redRight();
     return;
 
     switch (selector::selectedRoute) {
