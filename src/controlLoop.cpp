@@ -10,7 +10,11 @@ PIDPacket pidStep(float currentError, float currentTime, const PIDPacket& previo
     
     PIDPacket result;
     result.setpoint = previousPacket.setpoint;
-    result.slew = previousPacket.slew;
+    if (gains.slewRate == -1) {
+      result.slew = 1;
+    } else {
+      result.slew = previousPacket.slew;
+    }
 
     if (std::abs(result.errorSum) < gains.maxErrorSum)
       result.errorSum = previousPacket.errorSum + currentError / dt;
@@ -35,7 +39,12 @@ PIDPacket pidStep(float currentError, float currentTime, const PIDPacket& previo
     else if (result.output < -100) result.output = -100;
 
     // Slew
-    if (result.slew < 1) result.slew *= gains.slewRate;
+    if (result.slew < 1) {
+      float slewIncrease = result.slew * gains.slewRate - result.slew;
+      printf("Slew: %f %f\n", result.slew, slewIncrease);
+      if (slewIncrease > 0.01) slewIncrease = 0.01;
+      result.slew += slewIncrease;
+    }
     if (result.slew > 1) result.slew = 1;
 
     result.output *= result.slew;

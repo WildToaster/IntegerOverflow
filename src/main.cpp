@@ -6,10 +6,12 @@
 
 using namespace config;
 
-pid::PIDGains distanceGains({3, 2.2, 15, 18, 1.6});
+//                           {P, I, D, Max-I-term, Slew Rate}
+pid::PIDGains distanceGains({2.3, 2.2, 15, 15, 1.026}); // .045
+pid::PIDGains trackingGains({7.03, 0, 0.29, 20, -1});
 pid::PIDGains turnGains({0.52, 0.8, 18, 12, 2});
 
-Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25 * 1.10590242, 13.75, 36.0 / 48.0, distanceGains, turnGains);
+Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25 * 1.10590242, 13.75, 36.0 / 48.0, distanceGains, trackingGains, turnGains);
 
 void setClamp(bool clamping) {
     leftClampPiston.set(!clamping);
@@ -41,15 +43,21 @@ void redLeft() {
 }
 
 void redRight() {
-    setClamp(false);
-    drive.moveDistance(-24);
-    drive.turnAngle(45);
+    //setClamp(true);
+
+    drive.moveDistance(-48,30);//drive to the goal
+   /* setClamp(false);
+    drive.moveDistance(12);
+    drive.turnAngle(-75);//turn to the 
+*/
+
+   /* drive.turnAngle(45);
     drive.moveDistance(-24);
     drive.moveDistance(8);
     drive.turnAngle(-45);
     drive.moveDistance(-23, 60);
     setClamp(true);
-    drive.moveDistance(12);
+    drive.moveDistance(12);*/
 }
 
 void blueLeft() {
@@ -91,6 +99,9 @@ void autonomous() {
     while (inertial.isCalibrating()) {
         vex::this_thread::sleep_for(20);
     }
+
+    drive.moveDistance(96, 70);
+    return;
 
     switch (selector::selectedRoute) {
         case selector::AutonRoute::RED_LEFT:
