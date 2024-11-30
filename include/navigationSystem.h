@@ -1,7 +1,6 @@
 #pragma once
 
 #include "vex.h"
-#include "drivetrain.h"
 
 struct Location {
     float x = 0;
@@ -13,7 +12,7 @@ struct Location {
 
 class NavigationSystem {
     public:
-    NavigationSystem(vex::gps& gpsSensor, Drivetrain& drive);
+    NavigationSystem(vex::gps& gpsSensor);
     Location getLocation();
 
     private:
@@ -24,7 +23,6 @@ class NavigationSystem {
     vex::gps& gpsSensor;
 
     vex::thread odomThread;
-    Drivetrain& drive;
 
     Location lastPosition();
     Location basePosition();

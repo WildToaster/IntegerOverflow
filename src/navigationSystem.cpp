@@ -6,9 +6,9 @@ void NavigationSystem::odomLoop(void* thisArg) {
     }
 }
 
-NavigationSystem::NavigationSystem(vex::gps& gps, Drivetrain& drive): gpsSensor(gps), drive(drive) {
-    odomThread = vex::thread(odomLoop, this);
-    odomThread.detach();
+NavigationSystem::NavigationSystem(vex::gps& gps): gpsSensor(gps) {
+    // odomThread = vex::thread(odomLoop, this);
+    // odomThread.detach();
 };
 
 Location NavigationSystem::getGPSPacket() {
@@ -18,12 +18,10 @@ Location NavigationSystem::getGPSPacket() {
         gpsSensor.heading());
 }
 
-Location NavigationSystem::getLocation() {
-    return getGPSPacket();
+void NavigationSystem::odomStep() {
+
 }
 
-void NavigationSystem::odomStep() {
-    
-
-    vex::this_thread::sleep_for(10);
+Location NavigationSystem::getLocation() {
+    return getGPSPacket();
 }
