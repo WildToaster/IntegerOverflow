@@ -55,34 +55,34 @@ void redRight() {
 }
 
 void blueLeft() {
-    setClamp(false);
-    drive.moveDistance(-24);
-    drive.turnAngle(-45);
-    drive.moveDistance(-24);
-    drive.moveDistance(8);
-    drive.turnAngle(45);
-    drive.moveDistance(-23, 60);
+    drive.moveDistance(-47, 100);
+    vex::this_thread::sleep_for(300);
     setClamp(true);
-    drive.moveDistance(12);
+    vex::this_thread::sleep_for(300);
+    drive.moveDistance(18);
+    // drive.turnAngle(-55); Clearing out corner, cut because of time
+    drive.turnAngle(-100);
+    intake(80);
+    drive.moveDistance(35, 40);
+    intake(0);
 }
 
 void blueRight() {
-    setClamp(false);
-    drive.moveDistance(-29, 60);
+    drive.moveDistance(-28);
+    vex::this_thread::sleep_for(300);
     setClamp(true);
-
-    drive.turnAngle(-60);
-    intake(80);
-    drive.moveDistance(18);
-    
-    drive.turnAngle(-80);
-    drive.moveDistance(7);
-    vex::this_thread::sleep_for(600);
-    
-    drive.moveDistance(-36);
-    setClamp(false);
+    drive.turnAngle(-95);
+    intake(60);
+    drive.moveDistance(14.5);
+    vex::this_thread::sleep_for(1000);
+    intake(-60);
+    drive.moveDistance(3);
+    drive.turnAngle(-95);
+    intake(60);
+    drive.moveDistance(16);
+    drive.turnAngle(-115);
     intake(0);
-    drive.moveDistance(12);
+    drive.moveDistance(42, 40);
 }
 
 void autonomous() {
