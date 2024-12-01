@@ -2,6 +2,7 @@
 
 #include "vex.h"
 
+namespace nav {
 struct Location {
     float x = 0;
     float y = 0;
@@ -10,20 +11,6 @@ struct Location {
     Location(float x, float y, float heading): x(x), y(y), heading(heading) {};
 };
 
-class NavigationSystem {
-    public:
-    NavigationSystem(vex::gps& gpsSensor);
-    Location getLocation();
+extern Location getLocation();
 
-    private:
-    Location getGPSPacket();
-    static void odomLoop(void* thisArg);
-    void odomStep();
-
-    vex::gps& gpsSensor;
-
-    vex::thread odomThread;
-
-    Location lastPosition();
-    Location basePosition();
-};
+}

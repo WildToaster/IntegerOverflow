@@ -26,7 +26,6 @@ vex::motor_group& leftMotors;
 vex::motor_group& rightMotors;
 
 vex::inertial& inertial;
-NavigationSystem& nav;
 
 void setStraightSpeed(float speed);
 void setTurnSpeed(float speed);

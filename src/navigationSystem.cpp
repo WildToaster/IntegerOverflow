@@ -1,27 +1,17 @@
 #include "navigationSystem.h"
+#include "robotConfig.h"
 
-void NavigationSystem::odomLoop(void* thisArg) {
-    while (true) {
-        ((NavigationSystem*)thisArg)->odomStep();
-    }
-}
+namespace nav {
 
-NavigationSystem::NavigationSystem(vex::gps& gps): gpsSensor(gps) {
-    // odomThread = vex::thread(odomLoop, this);
-    // odomThread.detach();
-};
-
-Location NavigationSystem::getGPSPacket() {
+Location getGPSPacket() {
     return Location(
-        gpsSensor.xPosition(vex::distanceUnits::in),
-        gpsSensor.yPosition(vex::distanceUnits::in),
-        gpsSensor.heading());
+        config::gpsSensor.xPosition(vex::distanceUnits::in),
+        config::gpsSensor.yPosition(vex::distanceUnits::in),
+        config::gpsSensor.heading());
 }
 
-void NavigationSystem::odomStep() {
-
-}
-
-Location NavigationSystem::getLocation() {
+Location getLocation() {
     return getGPSPacket();
+}
+
 }
