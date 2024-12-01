@@ -151,7 +151,7 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
 void Drivetrain::turnAngle(float degrees, float maxSpeed) {
     // The controller will not move for distances smaller than this.
     const float minDist = 0.3;
-    const float maxEndOutput = 1;
+    const float maxEndOutput = 0.5;
     const float timeoutGain = 0.0007; // Shortened from 0.0007 as a 
     const float timeoutStatic = 2;
 
