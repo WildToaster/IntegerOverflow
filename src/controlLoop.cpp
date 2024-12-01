@@ -41,7 +41,7 @@ PIDPacket pidStep(float currentError, float currentTime, const PIDPacket& previo
     // Slew
     if (result.slew < 1) {
       float slewIncrease = result.slew * gains.slewRate - result.slew;
-      printf("Slew: %f %f\n", result.slew, slewIncrease);
+      // printf("Slew: %f %f\n", result.slew, slewIncrease);
       if (slewIncrease > gains.maxSlewRate) slewIncrease = gains.maxSlewRate;
       result.slew += slewIncrease;
     }
@@ -49,6 +49,7 @@ PIDPacket pidStep(float currentError, float currentTime, const PIDPacket& previo
 
     result.output *= result.slew;
 
+    printf("PID %0.3f %0.3f %0.3f %0.3f %f\n", currentError, p, i, d, result.output);
     return result;
 }
 

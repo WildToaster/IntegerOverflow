@@ -150,10 +150,10 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
 
 void Drivetrain::turnAngle(float degrees, float maxSpeed) {
     // The controller will not move for distances smaller than this.
-    const float minDist = 1;
-    const float maxEndOutput = 0.1;
-    const float timeoutGain = 0; // Shortened from 0.0007 as a 
-    const float timeoutStatic = 1.5;
+    const float minDist = 0.3;
+    const float maxEndOutput = 1;
+    const float timeoutGain = 0.0007; // Shortened from 0.0007 as a 
+    const float timeoutStatic = 2;
 
     float startAngle = inertial.rotation(vex::rotationUnits::deg);
     float startTime = brain.Timer.system();
@@ -179,7 +179,7 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
         error = degrees - currentAngle;
 
         closeToTarget = std::abs(error) < minDist && std::abs(error - pidPacket.lastError) < maxEndOutput;
-        printf("error %f %f\n", error, pidPacket.output);
+        // printf("error %f %f\n", error, pidPacket.output);
 
         usedTime += brain.Timer.system() - pidPacket.lastTime;
         pidPacket = pid::pidStep(error, brain.Timer.system(), pidPacket, turnGains);
