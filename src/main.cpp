@@ -150,8 +150,6 @@ void autonomous() {
 void userControl() {
     inertial.calibrate();
     while (true) {
-        nav::Location loc = nav::getLocation();
-        printf("Current Location: %f, %f, %f\n", loc.x, loc.y, loc.heading);
         /// Drive Code ///
         int controllerForward = controller.Axis3.position();
         int controllerTurn = controller.Axis4.position() * 0.85;

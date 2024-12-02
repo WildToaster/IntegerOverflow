@@ -134,7 +134,8 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
         trackingPidPacket = pid::pidStep(trackingError, brain.Timer.system(), trackingPidPacket, trackingGains);
 
         float straightSpeed = distancePidPacket.output;
-        // printf("%f %f\n", trackingError, trackingPidPacket.output);
+        printf("%f %f\n", trackingError, trackingPidPacket.output);
+        printf("%f %f\n", distance, distancePidPacket.output);
 
         if (std::abs(trackingPidPacket.output) > std::abs(straightSpeed)) {
             trackingPidPacket.output = std::copysign(straightSpeed, trackingPidPacket.output);
@@ -225,7 +226,7 @@ void Drivetrain::toPoint(float x, float y, bool reverse, float maxSpeed) {
     nav::Location loc = nav::getLocation();
 
     float turn = (atan2((loc.y - y), (loc.x - x)) * 180.0 / 3.141592653589793) - loc.heading;
-    float distance = sqrt((loc.x - x) * (loc.y - x) + (loc.y - y) * (loc.y - y));
+    float distance = sqrt((loc.x - x) * (loc.x - x) + (loc.y - y) * (loc.y - y));
 
     if (reverse) {
         distance *= -1;
@@ -233,7 +234,8 @@ void Drivetrain::toPoint(float x, float y, bool reverse, float maxSpeed) {
     }
 
     if (std::abs(turn) > 180) turn = 360 - std::abs(turn);
-
+    
+    printf("Distances %f %f\n", turn, distance);
     turnAngle(turn, maxSpeed);
     moveDistance(distance, maxSpeed);
 }
