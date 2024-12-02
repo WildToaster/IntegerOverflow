@@ -235,6 +235,7 @@ void Drivetrain::toPoint(float x, float y, bool reverse, float maxSpeed) {
 
     if (std::abs(turn) > 180) turn = 360 - std::abs(turn);
     
+    printf("Current Location %f %f %f\n", loc.x, loc.y, loc.heading);
     printf("Distances %f %f\n", turn, distance);
     turnAngle(turn, maxSpeed);
     moveDistance(distance, maxSpeed);

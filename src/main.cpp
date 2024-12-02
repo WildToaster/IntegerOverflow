@@ -122,7 +122,11 @@ void autonomous() {
         vex::this_thread::sleep_for(20);
     }
 
-    drive.turnAngle(135, 70);
+    while (gpsSensor.isCalibrating()) {
+        vex::this_thread::sleep_for(20);
+    }
+
+    drive.toPoint(0, 0);
     return;
 
     switch (selector::selectedRoute) {
@@ -150,6 +154,7 @@ void autonomous() {
 void userControl() {
     inertial.calibrate();
     while (true) {
+        printf("%f %f %f\n", nav::getLocation().x, nav::getLocation().y, nav::getLocation().heading);
         /// Drive Code ///
         int controllerForward = controller.Axis3.position();
         int controllerTurn = controller.Axis4.position() * 0.85;
