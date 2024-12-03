@@ -28,7 +28,7 @@ PIDPacket pidStep(float currentError, float currentTime, const PIDPacket& previo
 
     float p = gains.p * currentError;
     float i = gains.i * result.errorSum;
-    float d = gains.d * (previousPacket.lastError - currentError) / dt;
+    float d = gains.d * (previousPacket.lastError - currentError) / dt; // MIGHT BE REVERSED
 
     result.output = p + i + d;
     result.lastError = currentError;
