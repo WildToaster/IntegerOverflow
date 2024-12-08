@@ -1,6 +1,7 @@
 #include "drivetrain.h"
 #include <cmath>
 #include <algorithm>
+#include "filters.h"
 
 Drivetrain::Drivetrain(vex::brain& brain, vex::motor_group& leftMotors, vex::motor_group& rightMotors, vex::inertial& inertial, float wheelDiameter, float wheelTrack, float gearing, pid::PIDGains distanceGains, pid::PIDGains trackingGains, pid::PIDGains turnGains):
     brain(brain),
@@ -177,6 +178,9 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
     while (!closeToTarget && brain.Timer.system() - startTime < maxTime) {
         float currentAngle = inertial.rotation(vex::rotationUnits::deg) - startAngle;
         error = degrees - currentAngle;
+
+        // Filter noise from inertial sensor
+        error = filters::lowPass(error, pidPacket.lastError);
 
         closeToTarget = std::abs(error) < minDist && std::abs(error - pidPacket.lastError) < maxEndOutput;
         // printf("error %f %f\n", error, pidPacket.output);
