@@ -6,10 +6,10 @@
 
 using namespace config;
 
-//                           {P, I, D, Max-I-term, Slew Rate, Max Slew Speed}
-pid::PIDGains distanceGains({2.15, 2.2, 15, 15, 1.026, 0.01}); // .045
-pid::PIDGains trackingGains({7.03, 0, 0.29, 20, -1, -1});
-pid::PIDGains turnGains({0.38, 2, 15, 7.74, 1.2, 0.1});
+//                           {P, I, D, Max-I-term, Slew Rate, Max Slew Speed, minOutput}
+pid::PIDGains distanceGains({2.15, 2.2, 15, 15, 1.026, 0.01, 0}); // .045
+pid::PIDGains trackingGains({7.03, 0, 0.29, 20, -1, -1, 0});
+pid::PIDGains turnGains({1.7, 0, 90, 7.74, 2, 0.4, 15});
 
 Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25 * 1.10590242, 13.75, 36.0 / 48.0, distanceGains, trackingGains, turnGains);
 
@@ -94,6 +94,9 @@ void autonomous() {
     while (inertial.isCalibrating()) {
         vex::this_thread::sleep_for(20);
     }
+
+    drive.turnAngle(90);
+    return;
 
     switch (selector::selectedRoute) {
         case selector::AutonRoute::RED_LEFT:

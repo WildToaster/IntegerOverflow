@@ -189,7 +189,7 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
 
         setTurnSpeed(pidPacket.output * (maxSpeed / 100) * 120);
 
-        vex::this_thread::sleep_for(12);
+        vex::this_thread::sleep_for(11);
     }
 
     stop();

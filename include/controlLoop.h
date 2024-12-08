@@ -21,8 +21,9 @@ struct PIDGains {
     double maxErrorSum = 0;
     double slewRate = 0;
     float maxSlewRate = 0.01;
+    float minOutput = 0;
 
-    PIDGains(double p, double i, double d, double maxErrorSum, double slewRate, float maxSlewRate): p(p), i(i), d(d), maxErrorSum(maxErrorSum), slewRate(slewRate), maxSlewRate(maxSlewRate) {}
+    PIDGains(double p, double i, double d, double maxErrorSum, double slewRate, float maxSlewRate, float minOutput): p(p), i(i), d(d), maxErrorSum(maxErrorSum), slewRate(slewRate), maxSlewRate(maxSlewRate), minOutput(minOutput) {}
 };
 
 // The output will always be between -100 and 100.

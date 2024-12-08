@@ -28,15 +28,19 @@ PIDPacket pidStep(float currentError, float currentTime, const PIDPacket& previo
 
     float p = gains.p * currentError;
     float i = gains.i * result.errorSum;
-    float d = gains.d * (previousPacket.lastError - currentError) / dt; // MIGHT BE REVERSED
+    float d = gains.d * (previousPacket.lastError - currentError) / dt;
 
-    result.output = p + i + d;
+    result.output = p + i - d;
     result.lastError = currentError;
     result.lastTime = currentTime;
 
     // Clamp output values in -100 to 100
     if (result.output > 100) result.output = 100;
     else if (result.output < -100) result.output = -100;
+
+    if (std::abs(result.output) < gains.minOutput) {
+      result.output = std::copysign(gains.minOutput, result.output); // Copies the sign (whether the value is positive or negative) from result.output to the gains.minOutput
+    }
 
     // Slew
     if (result.slew < 1) {
@@ -49,7 +53,7 @@ PIDPacket pidStep(float currentError, float currentTime, const PIDPacket& previo
 
     result.output *= result.slew;
 
-    // printf("PID %0.3f %0.3f %0.3f %0.3f %f\n", currentError, p, i, d, result.output);
+    printf("PID %0.3f %0.3f %0.3f %0.3f %f\n", currentError, p, i, d, result.output);
     return result;
 }
 
