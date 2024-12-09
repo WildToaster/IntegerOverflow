@@ -6,7 +6,42 @@
 
 using namespace config;
 
-//                           {P, I, D, Max-I-term, Slew Rate, Max Slew Speed, minOutput}
+/*
+
+** Distance Tuning **
+The Distance PID controller affects the speed at which the robot drives
+forwards. The input for the controller is the distance left to travel
+to get to the target.
+
+Increasing the P term on distance gains causes the robot to be at a higher
+speed for longer, but the deceleration slew rate will be higher (more abrupt).
+If the robot has a "rough" deceleration, then the P term is most likely
+too high. If the robot either does not continue on after a straight move
+or it hits the timeout for the move, then the P term is not high enough,
+since it does not have enough oomph to make it to the finish line. With
+distance PID, the I and D terms are not needed, nor is a minOutput required.
+This is because when going straight, the robot is not going to overshoot
+because of the slower speeds as it gets closer to the target.
+
+For adjusting the P term: increments of 0.1 - 0.25 should be sufficient.
+
+** Tracking Tuning **
+The tracking gains adjust the PID controller's response to the robot's
+offset from going straight. The controller takes its input from the difference
+in the distance traveled from the left and right side of the base
+(Right travel - left travel).
+
+In the tracking gains, the P term affects how strongly the controller
+reacts to an offset. The higher the P term, the faster it will react, but
+it will also be more prone to oscillation. The I term is used to correct for
+any steady-state error. The D term is used to quickly react to abrupt changes
+to the error and also helps to dampen oscillations.
+
+More detail will be added as to how to tune this once I learn more
+
+*/
+
+// Parameters are: {P term, I term, D term, Max I effect, Slew Rate, Max Slew Speed, minOutput}
 pid::PIDGains distanceGains({4.75, 0, 0, 15, 1.08, 0.03, 0}); // .045
 pid::PIDGains trackingGains({37, 0.00105, 50, 20, -1, -1, 0});
 pid::PIDGains turnGains({2.25, 0, 188.675, 7.74, 2, 0.4, 15});

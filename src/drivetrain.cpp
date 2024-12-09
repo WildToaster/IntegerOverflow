@@ -141,7 +141,7 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
         errorHistory.push_back(trackingError * 10);
         outputHistory.push_back(trackingPidPacket.output / 20);
 
-        printf("%f %f\n", straightSpeed, trackingPidPacket.output);
+        // printf("%f %f\n", straightSpeed, trackingPidPacket.output);
 
         leftMotors.spin(vex::directionType::fwd, (straightSpeed + trackingPidPacket.output) * (maxSpeed / 100) * 120, vex::voltageUnits::mV);
         rightMotors.spin(vex::directionType::fwd, (straightSpeed - trackingPidPacket.output) * (maxSpeed / 100) * 120, vex::voltageUnits::mV);
