@@ -9,7 +9,7 @@ using namespace config;
 //                           {P, I, D, Max-I-term, Slew Rate, Max Slew Speed, minOutput}
 pid::PIDGains distanceGains({2.15, 2.2, 15, 15, 1.026, 0.01, 0}); // .045
 pid::PIDGains trackingGains({7.03, 0, 0.29, 20, -1, -1, 0});
-pid::PIDGains turnGains({2.22, 0, 150, 7.74, 2, 0.4, 0});
+pid::PIDGains turnGains({2.25, 0, 188.675, 7.74, 2, 0.4, 15});
 
 Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25 * 1.10590242, 13.75, 36.0 / 48.0, distanceGains, trackingGains, turnGains);
 
@@ -94,7 +94,9 @@ void autonomous() {
         vex::this_thread::sleep_for(20);
     }
 
-    drive.turnAngle(90);
+    for (int i = 0; i < 16; i++) {
+        drive.turnAngle(180);
+    }
     return;
 
     switch (selector::selectedRoute) {
