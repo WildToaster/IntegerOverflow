@@ -90,15 +90,15 @@ void redRight() {
 }
 
 void blueLeft() {
-    drive.moveDistance(-47, 100);
+    drive.moveDistance(-43, 100);
     vex::this_thread::sleep_for(300);
     setClamp(true);
     vex::this_thread::sleep_for(300);
     drive.moveDistance(18);
     // drive.turnAngle(-55); Clearing out corner, cut because of time
-    drive.turnAngle(-90);
+    drive.turnAngle(-75);
     intake(80);
-    drive.moveDistance(35, 40);
+    drive.moveDistance(48, 40);
     intake(0);
 }
 
