@@ -42,9 +42,9 @@ More detail will be added as to how to tune this once I learn more
 */
 
 // Parameters are: {P term, I term, D term, Max I effect, Slew Rate, Max Slew Speed, minOutput}
-pid::PIDGains distanceGains({4.75, 0, 0, 15, 1.08, 0.03, 0}); // .045
+pid::PIDGains distanceGains({5.15, 0, 0, 15, 1.08, 0.03, 0}); // .045
 pid::PIDGains trackingGains({37, 0.00105, 50, 20, -1, -1, 0});
-pid::PIDGains turnGains({2.25, 0, 188.675, 7.74, 2, 0.4, 15});
+pid::PIDGains turnGains({2.27, 0, 188.675, 7.74, 2, 0.4, 15});
 
 Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25 * 0.9791667, 13.75, 36.0 / 48.0, distanceGains, trackingGains, turnGains);
 
@@ -77,15 +77,15 @@ void redLeft() {
 }
 
 void redRight() {
-    drive.moveDistance(-47, 100);
+    drive.moveDistance(-43, 100);
     vex::this_thread::sleep_for(300);
     setClamp(true);
     vex::this_thread::sleep_for(300);
     drive.moveDistance(18);
     // drive.turnAngle(-55); Clearing out corner, cut because of time
-    drive.turnAngle(100);
+    drive.turnAngle(75);
     intake(80);
-    drive.moveDistance(35, 40);
+    drive.moveDistance(48, 40);
     intake(0);
 }
 
