@@ -42,7 +42,7 @@ More detail will be added as to how to tune this once I learn more
 */
 
 // Parameters are: {P term, I term, D term, Max I effect, Slew Rate, Max Slew Speed, minOutput}
-pid::PIDGains distanceGains({5.15, 0, 0, 15, 1.08, 0.03, 0}); // .045
+pid::PIDGains distanceGains({6, 0, 0, 15, 1.08, 0.03, 0}); // .045
 pid::PIDGains trackingGains({37, 0.00105, 50, 20, -1, -1, 0});
 pid::PIDGains turnGains({2.27, 0, 188.675, 7.74, 2, 0.4, 15});
 
@@ -62,16 +62,12 @@ void redLeft() {
     drive.moveDistance(-28);
     vex::this_thread::sleep_for(300);
     setClamp(true);
-    drive.turnAngle(95);
+    drive.turnAngle(90);
     intake(60);
     drive.moveDistance(14.5);
-    vex::this_thread::sleep_for(1000);
-    intake(-60);
-    drive.moveDistance(3);
-    drive.turnAngle(95);
-    intake(60);
+    drive.turnAngle(90);
     drive.moveDistance(16);
-    drive.turnAngle(115);
+    drive.turnAngle(110);
     intake(0);
     drive.moveDistance(42, 40);
 }
@@ -106,16 +102,12 @@ void blueRight() {
     drive.moveDistance(-28);
     vex::this_thread::sleep_for(300);
     setClamp(true);
-    drive.turnAngle(-95);
+    drive.turnAngle(-90);
     intake(60);
     drive.moveDistance(14.5);
-    vex::this_thread::sleep_for(1000);
-    intake(-60);
-    drive.moveDistance(3);
-    drive.turnAngle(-95);
-    intake(60);
+    drive.turnAngle(-90);
     drive.moveDistance(16);
-    drive.turnAngle(-115);
+    drive.turnAngle(-110);
     intake(0);
     drive.moveDistance(42, 40);
 }
