@@ -129,9 +129,6 @@ void autonomous() {
         vex::this_thread::sleep_for(20);
     }
 
-    drive.moveDistance(48);
-    return;
-
     switch (selector::selectedRoute) {
         case selector::AutonRoute::RED_LEFT:
             redLeft();
