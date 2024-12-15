@@ -121,6 +121,7 @@ void autonomous() {
         vex::this_thread::sleep_for(20);
     }
 
+    drive.turnAngle(135, 70);
     return;
 
     switch (selector::selectedRoute) {

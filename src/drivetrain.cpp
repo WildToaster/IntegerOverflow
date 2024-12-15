@@ -169,6 +169,8 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
     float startAngle = inertial.rotation(vex::rotationUnits::deg);
     float startTime = brain.Timer.system();
     float maxTime = (timeoutStatic + maxSpeed * std::abs(degrees) * timeoutGain) * 1000;
+    float overshootTime = 1000;
+    bool isStopping = false;
 
     printf("startangle %f\n", startAngle);
 
@@ -181,21 +183,29 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
     float usedTime = 0;
 
     float error = degrees;
+    float filteredError = degrees;
     bool closeToTarget = std::abs(error) < minDist;
 
     pidPacket.lastTime = brain.Timer.system();
 
-    while (!closeToTarget && brain.Timer.system() - startTime < maxTime) {
+    while (!closeToTarget && brain.Timer.system() - startTime < maxTime && !(isStopping && overshootTime <= 0)) {
         float currentAngle = inertial.rotation(vex::rotationUnits::deg) - startAngle;
         error = degrees - currentAngle;
 
         // Filter noise from inertial sensor
         error = filters::lowPass(error, pidPacket.lastError);
+        filteredError = filters::lowPass(error, filteredError);
+        error = filteredError;
 
         closeToTarget = std::abs(error) < minDist && std::abs(error - pidPacket.lastError) < maxEndOutput;
         // printf("error %f %f\n", error, pidPacket.output);
 
         usedTime += brain.Timer.system() - pidPacket.lastTime;
+        if (error > 0 != pidPacket.lastError > 0) {
+            isStopping = true;
+        }
+        if (isStopping) overshootTime -= brain.Timer.system() - pidPacket.lastTime;
+
         pidPacket = pid::pidStep(error, brain.Timer.system(), pidPacket, turnGains);
 
         errorHistory.push_back(error);
@@ -206,6 +216,7 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
         vex::this_thread::sleep_for(11);
     }
 
+    setBrakeMode(vex::brakeType::brake);
     stop();
     pid::graphPID(brain, errorHistory, outputHistory, degrees, error, usedTime);
 }
