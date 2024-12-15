@@ -94,7 +94,7 @@ void blueLeft() {
     // drive.turnAngle(-55); Clearing out corner, cut because of time
     drive.turnAngle(-75);
     intake(80);
-    drive.moveDistance(48, 40);
+    drive.moveDistance(48, 55);
     intake(0);
 }
 
