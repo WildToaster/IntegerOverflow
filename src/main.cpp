@@ -42,7 +42,7 @@ More detail will be added as to how to tune this once I learn more
 */
 
 // Parameters are: {P term, I term, D term, Max I effect, Slew Rate, Max Slew Speed, minOutput}
-pid::PIDGains distanceGains({6, 0, 0, 15, 1.08, 0.03, 0}); // .045
+pid::PIDGains distanceGains({6, 0.015, 700, 12, 12, 0.03, 0}); // .045
 pid::PIDGains trackingGains({37, 0.00105, 50, 20, -1, -1, 0});
 pid::PIDGains turnGains({2.27, 0, 188.675, 7.74, 2, 0.4, 15});
 
@@ -120,6 +120,8 @@ void autonomous() {
     while (inertial.isCalibrating()) {
         vex::this_thread::sleep_for(20);
     }
+
+    return;
 
     switch (selector::selectedRoute) {
         case selector::AutonRoute::RED_LEFT:

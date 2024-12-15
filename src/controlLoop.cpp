@@ -16,11 +16,7 @@ PIDPacket pidStep(float currentError, float currentTime, const PIDPacket& previo
       result.slew = previousPacket.slew;
     }
 
-    if (std::abs(result.errorSum) < gains.maxErrorSum)
-      result.errorSum = previousPacket.errorSum + currentError / dt;
-    
-    if (std::abs(result.errorSum) > gains.maxErrorSum)
-      result.errorSum = std::copysign(gains.maxErrorSum, result.errorSum); // Copies the sign from errorSum to the maxErrorSums
+    result.errorSum = previousPacket.errorSum + currentError / dt;
 
     // If the error has a zero crossing, reset the error sum to prevent windup
     if (currentError > 0 != previousPacket.lastError > 0)
@@ -29,6 +25,9 @@ PIDPacket pidStep(float currentError, float currentTime, const PIDPacket& previo
     float p = gains.p * currentError;
     float i = gains.i * result.errorSum;
     float d = gains.d * (previousPacket.lastError - currentError) / dt;
+
+    if (std::abs(i) > gains.maxErrorSum)
+      i = std::copysign(gains.maxErrorSum, i); // Copies the sign from errorSum to the maxErrorSums
 
     result.output = p + i - d;
     result.lastError = currentError;
@@ -54,8 +53,7 @@ PIDPacket pidStep(float currentError, float currentTime, const PIDPacket& previo
     result.output *= result.slew;
 
     if (std::signbit(result.output) != std::signbit(currentError)) result.output = 0;
-
-    // printf("PID %0.3f %0.3f %0.3f %0.3f %f\n", currentError, p, i, d, result.output);
+    printf("PID %0.3f %0.3f %0.3f %0.3f %f\n", currentError, p, i, d, result.output);
     return result;
 }
 

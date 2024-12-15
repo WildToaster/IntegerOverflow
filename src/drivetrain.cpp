@@ -92,6 +92,7 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
     // The controller will not move for distances smaller than this.
     const float minDist = 0.3;
     const float maxEndOutput = 0.3; // Inches / 20 msec
+    const float endDeadTime = 0.4;
 
     const float startLeftPos = getLeftDistance();
     const float startRightPos = getRightDistance();
@@ -108,6 +109,7 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
     float usedTime = 0;
 
     float distanceError = distance;
+    float filteredDistanceError = distance;
     bool closeToTarget = std::abs(distanceError) < minDist;
 
     distancePidPacket.lastTime = brain.Timer.system();
@@ -119,6 +121,8 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
         distanceError = distance - distanceTraveled;
 
         distanceError = filters::lowPass(distanceError, distancePidPacket.lastError);
+        filteredDistanceError = filters::lowPass(distanceError, filteredDistanceError);
+        distanceError = filteredDistanceError;
 
         usedTime += 5;
         distancePidPacket = pid::pidStep(distanceError, brain.Timer.system(), distancePidPacket, distanceGains);
@@ -150,8 +154,8 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
         vex::this_thread::sleep_for(5);
     }
 
-    stop();
     setBrakeMode(vex::brakeType::brake);
+    stop();
     pid::graphPID(brain, errorHistory, outputHistory, distance, distanceError, usedTime);
 }
 
