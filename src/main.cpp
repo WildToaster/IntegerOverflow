@@ -126,7 +126,7 @@ void autonomous() {
         vex::this_thread::sleep_for(20);
     }
 
-    drive.toPoint(0, 0);
+    drive.toPoint(-48, 24);
     return;
 
     switch (selector::selectedRoute) {
