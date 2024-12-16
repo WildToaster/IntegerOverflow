@@ -15,6 +15,7 @@ void moveCurvatureVoltage(float straightSpeed, float turnSpeed);
 void moveDistance(float distance, float maxSpeed = 70);
 void turnAngle(float degrees, float maxSpeed = 70);
 void toPoint(float x, float y, bool reverse = false, float maxSpeed = 70);
+void continuousToPoint(float x, float y, float maxSpeed = 70);
 void stop();
 
 void setBrakeMode(vex::brakeType mode);

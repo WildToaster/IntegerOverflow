@@ -241,3 +241,53 @@ void Drivetrain::toPoint(float x, float y, bool reverse, float maxSpeed) {
     turnAngle(turn, maxSpeed);
     moveDistance(distance, maxSpeed);
 }
+
+nav::Location rotatePoint(float x, float y, float degrees) {
+    float radians = degrees * M_PI / 180;
+    float c = std::cos(radians);
+    float s = std::sin(radians);
+
+    nav::Location out;
+    out.x = x * c - y * s;
+    out.y = x * s + y * c;
+    return out;
+}
+
+void Drivetrain::continuousToPoint(float x, float y, float maxSpeed) {
+    nav::Location currentLocation = nav::getLocation();
+
+    float xError = x - currentLocation.x;
+    float yError = y - currentLocation.y;
+
+    float turnKp = 1;
+    float straightKp = 1;
+
+    while (true) {
+        currentLocation = nav::getLocation();
+        xError = x - currentLocation.x;
+        yError = y - currentLocation.y;
+
+        nav::Location rotatedError = rotatePoint(xError, yError, currentLocation.heading);
+
+        printf("Rotated Error: (%.3f, %.3f) %.3f\n", rotatedError.x, rotatedError.y, currentLocation.heading);
+
+        float turnSpeed = rotatedError.x * turnKp;
+        float straightSpeed = rotatedError.y * straightKp;
+
+        if (std::abs(turnSpeed) > maxSpeed) turnSpeed = std::copysign(maxSpeed, turnSpeed);
+        if (std::abs(straightSpeed) > maxSpeed) straightSpeed = std::copysign(maxSpeed, straightSpeed);
+
+        float leftSpeed = straightSpeed + turnSpeed;
+        float rightSpeed = straightSpeed - turnSpeed;
+
+        if (std::abs(leftSpeed) > maxSpeed) leftSpeed = std::copysign(maxSpeed, leftSpeed);
+        if (std::abs(rightSpeed) > maxSpeed) rightSpeed = std::copysign(maxSpeed, rightSpeed);
+        
+        leftMotors.spin(vex::directionType::fwd, leftSpeed * 120, vex::voltageUnits::mV);
+        rightMotors.spin(vex::directionType::fwd, rightSpeed * 120, vex::voltageUnits::mV);
+
+        printf("Speeds %f %f %f %f\n", turnSpeed, straightSpeed, leftSpeed, rightSpeed);
+        
+        vex::this_thread::sleep_for(20);
+    }
+}
