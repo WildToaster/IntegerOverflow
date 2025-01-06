@@ -4,6 +4,7 @@
 #include "autonSelector.h"
 #include "navigationSystem.h"
 #include <cmath>
+#include <algorithm>
 
 using namespace config;
 
@@ -43,11 +44,14 @@ More detail will be added as to how to tune this once I learn more
 */
 
 // Parameters are: {P term, I term, D term, Max I effect, Slew Rate, Max Slew Speed, minOutput}
-pid::PIDGains distanceGains({16, 0.015, 0, 12, 12, 0.03, 0}); // .045
-pid::PIDGains trackingGains({46, 0.01, 0, 20, -1, -1, 0});
+pid::PIDGains distanceGains({16, 0.015, 1800, 12, 12, 0.03, 0}); // .045
+pid::PIDGains trackingGains({46, 0.01, 60, 20, -1, -1, 0});
 pid::PIDGains turnGains({2.27, 0, 188.675, 7.74, 2, 0.4, 15});
 
 Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25, 13.75, 36.0 / 48.0, distanceGains, trackingGains, turnGains);
+
+float armPosition = 0;
+bool armManagerActive = true;
 
 void setClamp(bool clamping) {
     leftClampPiston.set(clamping);
@@ -59,7 +63,23 @@ void intake(int speed) {
     conveyerMotor.spin(vex::directionType::fwd, speed, vex::velocityUnits::pct);
 }
 
+void armPositionManager() {
+    const float armMin = 0, armMax = 120, gearRatio = 6;
 
+    while (true) {
+        armPosition = std::min(armMax * gearRatio, std::max(armMin * gearRatio, armPosition));
+        if (armManagerActive) {
+            armMotor.spinTo(armPosition * gearRatio, vex::rotationUnits::deg);
+            printf("%f %f %f\n", armPosition, armMotor.position(vex::rotationUnits::deg) / gearRatio, armRotationSensor.position(vex::rotationUnits::deg));
+        } else {
+            if (armRotationSensor.position(vex::rotationUnits::deg) >= armMax) armMotor.stop();
+            vex::this_thread::sleep_for(20);
+        }
+    }
+}
+
+
+//// Auton Routes ////
 void redLeft() {
     drive.moveDistance(-28);
     vex::this_thread::sleep_for(300);
@@ -127,7 +147,7 @@ void autonomous() {
         vex::this_thread::sleep_for(20);
     }
 
-    drive.moveDistance(48, 40);
+    drive.moveDistance(48);
     return;
 
     switch (selector::selectedRoute) {
@@ -156,7 +176,6 @@ void userControl() {
     inertial.calibrate();
 
     while (true) {
-        printf("%f %f %f\n", nav::getLocation().x, nav::getLocation().y, nav::getLocation().heading);
         /// Drive Code ///
         int controllerForward = controller.Axis3.position();
         int controllerTurn = controller.Axis4.position() * 0.85;
@@ -200,10 +219,15 @@ void userControl() {
         // Arm
         int controllerArmStick = controller.Axis2.position();
 
-        if (std::abs(controllerArmStick) < 15) {
-            controllerArmStick = 0;
+        if (std::abs(controllerArmStick) > 15) {
+            armManagerActive = false;
+            armPosition = armRotationSensor.position(vex::rotationUnits::deg);
+            armMotor.spin(vex::directionType::fwd, controllerArmStick, vex::velocityUnits::pct);
+        } else {
+            armManagerActive = true;
         }
-        armMotor.spin(vex::directionType::fwd, controllerArmStick, vex::velocityUnits::pct);
+
+        if (controller.ButtonUp.pressing()) armPosition = 33;
 
         vex::wait(20, vex::msec); // Prevent hogging resources
     }
@@ -218,6 +242,12 @@ int main() {
     drive.setBrakeMode(vex::brakeType::brake);
     selector::start(brain);
     inertial.calibrate();
+
+    armMotor.setStopping(vex::brakeType::hold);
+    armMotor.setPosition(armRotationSensor.angle(), vex::rotationUnits::deg);
+
+    vex::thread armPositionThread(armPositionManager);
+    armPositionThread.detach();
 
     // Prevent main from exiting with an infinite loop.
     while (true) {

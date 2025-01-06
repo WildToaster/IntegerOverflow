@@ -37,5 +37,6 @@ vex::digital_out plowPiston(brain.ThreeWirePort.E);
 
 //// Sensors ////
 vex::gps gpsSensor(vex::PORT5, 4.46, -3.08, vex::distanceUnits::in, 176.85);
+vex::rotation armRotationSensor(vex::PORT4, true);
 
 } // namespace config

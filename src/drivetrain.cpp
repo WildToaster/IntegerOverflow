@@ -91,8 +91,8 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
     setBrakeMode(vex::brakeType::coast);
     // The controller will not move for distances smaller than this.
     const float minDist = 0.3;
-    const float maxEndOutput = 0.3; // Inches / 20 msec
-    const float endDeadTime = 0.4;
+    const float maxEndOutput = 0.07; // Inches / 20 msec
+    float endDeadTime = 0.4;
 
     const float startLeftPos = getLeftDistance();
     const float startRightPos = getRightDistance();
@@ -114,7 +114,7 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
 
     distancePidPacket.lastTime = brain.Timer.system();
 
-    // setTurnSpeed(0);
+    bool isStopping = false;
 
     while (!closeToTarget) {
         float distanceTraveled = (getLeftDistance() - startLeftPos + getRightDistance() - startRightPos) / 2;
@@ -123,6 +123,12 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
         distanceError = filters::lowPass(distanceError, distancePidPacket.lastError);
         filteredDistanceError = filters::lowPass(distanceError, filteredDistanceError);
         distanceError = filteredDistanceError;
+
+        if (std::abs(distanceError) < minDist) isStopping = true;
+        
+        if (isStopping) endDeadTime -= 0.005; 
+        
+        closeToTarget = std::abs(distanceError) < minDist && std::abs(distanceError - distancePidPacket.lastError) < maxEndOutput;
 
         usedTime += 5;
         distancePidPacket = pid::pidStep(distanceError, brain.Timer.system(), distancePidPacket, distanceGains);
@@ -141,17 +147,16 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
             trackingPidPacket.output = std::copysign(straightSpeed, trackingPidPacket.output);
         }
 
-        // errorHistory.push_back(distanceError);
-        // outputHistory.push_back(distancePidPacket.output / 100);
-        errorHistory.push_back(trackingError * 10);
-        outputHistory.push_back(trackingPidPacket.output / 20);
+        errorHistory.push_back(distanceError);
+        outputHistory.push_back(distancePidPacket.output / 100);
+        // errorHistory.push_back(trackingError * 10);
+        // outputHistory.push_back(trackingPidPacket.output / 20);
 
         // printf("%f %f\n", straightSpeed, trackingPidPacket.output);
 
         leftMotors.spin(vex::directionType::fwd, (straightSpeed + trackingPidPacket.output) * (maxSpeed / 100) * 120, vex::voltageUnits::mV);
         rightMotors.spin(vex::directionType::fwd, (straightSpeed - trackingPidPacket.output) * (maxSpeed / 100) * 120, vex::voltageUnits::mV);
 
-        closeToTarget = std::abs(distanceError) < minDist && std::abs(distanceError - distancePidPacket.lastError) < maxEndOutput;
         vex::this_thread::sleep_for(5);
     }
 

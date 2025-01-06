@@ -41,5 +41,6 @@ extern vex::digital_out plowPiston;
 
 //// Sensors ////
 extern vex::gps gpsSensor;
+extern vex::rotation armRotationSensor;
 
 } // namespace config
