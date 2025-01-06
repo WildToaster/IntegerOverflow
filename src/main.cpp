@@ -43,11 +43,11 @@ More detail will be added as to how to tune this once I learn more
 */
 
 // Parameters are: {P term, I term, D term, Max I effect, Slew Rate, Max Slew Speed, minOutput}
-pid::PIDGains distanceGains({6, 0.015, 700, 12, 12, 0.03, 0}); // .045
+pid::PIDGains distanceGains({10, 0, 0, 12, 12, 0.03, 0}); // .045
 pid::PIDGains trackingGains({37, 0.00105, 50, 20, -1, -1, 0});
 pid::PIDGains turnGains({2.27, 0, 188.675, 7.74, 2, 0.4, 15});
 
-Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25 * 0.9791667, 13.75, 36.0 / 48.0, distanceGains, trackingGains, turnGains);
+Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25, 13.75, 36.0 / 48.0, distanceGains, trackingGains, turnGains);
 
 void setClamp(bool clamping) {
     leftClampPiston.set(clamping);
@@ -58,6 +58,7 @@ void intake(int speed) {
     collectionMotor.spin(vex::directionType::fwd, speed, vex::velocityUnits::pct);
     conveyerMotor.spin(vex::directionType::fwd, speed, vex::velocityUnits::pct);
 }
+
 
 void redLeft() {
     drive.moveDistance(-28);
@@ -126,7 +127,7 @@ void autonomous() {
         vex::this_thread::sleep_for(20);
     }
 
-    drive.continuousToPoint(48, 48, 30);
+    drive.moveDistance(48, 40);
     return;
 
     switch (selector::selectedRoute) {
@@ -153,6 +154,7 @@ void autonomous() {
 
 void userControl() {
     inertial.calibrate();
+
     while (true) {
         printf("%f %f %f\n", nav::getLocation().x, nav::getLocation().y, nav::getLocation().heading);
         /// Drive Code ///
@@ -175,11 +177,11 @@ void userControl() {
         //// Aux Modes ////
         // Intake
         if (controller.ButtonR1.pressing()) {
-            collectionMotor.spin(vex::directionType::fwd, 80, vex::velocityUnits::pct);
-            conveyerMotor.spin(vex::directionType::fwd, 80, vex::velocityUnits::pct);
+            collectionMotor.spin(vex::directionType::fwd, 100, vex::velocityUnits::pct);
+            conveyerMotor.spin(vex::directionType::fwd, 100, vex::velocityUnits::pct);
         } else if (controller.ButtonR2.pressing()) {
-            collectionMotor.spin(vex::directionType::fwd, -80, vex::velocityUnits::pct);
-            conveyerMotor.spin(vex::directionType::fwd, -80, vex::velocityUnits::pct);
+            collectionMotor.spin(vex::directionType::fwd, -100, vex::velocityUnits::pct);
+            conveyerMotor.spin(vex::directionType::fwd, -100, vex::velocityUnits::pct);
         } else {
             collectionMotor.stop();
             conveyerMotor.stop();
@@ -194,6 +196,14 @@ void userControl() {
 
         // Plow
         plowPiston.set(controller.ButtonA.pressing());
+
+        // Arm
+        int controllerArmStick = controller.Axis2.position();
+
+        if (std::abs(controllerArmStick) < 15) {
+            controllerArmStick = 0;
+        }
+        armMotor.spin(vex::directionType::fwd, controllerArmStick, vex::velocityUnits::pct);
 
         vex::wait(20, vex::msec); // Prevent hogging resources
     }

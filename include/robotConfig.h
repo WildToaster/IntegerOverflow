@@ -28,6 +28,9 @@ extern vex::motor_group rightBaseMotors;
 extern vex::motor collectionMotor;
 extern vex::motor conveyerMotor;
 
+//// arm ////
+extern vex::motor armMotor;
+
 //// Pneumatics ////
 // Clamp
 extern vex::digital_out leftClampPiston;
