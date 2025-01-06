@@ -64,17 +64,21 @@ void intake(int speed) {
 }
 
 void armPositionManager() {
-    const float armMin = 0, armMax = 120, gearRatio = 6;
+    const float armMin = 0, armMax = 153;
+
+    pid::PIDGains armGains({2.25, 0, 60, 10, -1, -1, 0});
+    pid::PIDPacket armPacket;
 
     while (true) {
-        armPosition = std::min(armMax * gearRatio, std::max(armMin * gearRatio, armPosition));
-        if (armManagerActive) {
-            armMotor.spinTo(armPosition * gearRatio, vex::rotationUnits::deg);
-            printf("%f %f %f\n", armPosition, armMotor.position(vex::rotationUnits::deg) / gearRatio, armRotationSensor.position(vex::rotationUnits::deg));
-        } else {
-            if (armRotationSensor.position(vex::rotationUnits::deg) >= armMax) armMotor.stop();
-            vex::this_thread::sleep_for(20);
+        armPosition = std::min(armMax, std::max(armMin, armPosition));
+        if (competition.isEnabled()) {
+            float currentError = armPosition - armRotationSensor.position(vex::rotationUnits::deg);
+            armPacket = pid::pidStep(currentError, brain.Timer.system(), armPacket, armGains);
+
+            armMotor.spin(vex::directionType::fwd, 120 * armPacket.output, vex::voltageUnits::mV);
         }
+
+        vex::this_thread::sleep_for(20);
     }
 }
 
@@ -219,15 +223,13 @@ void userControl() {
         // Arm
         int controllerArmStick = controller.Axis2.position();
 
-        if (std::abs(controllerArmStick) > 15) {
-            armManagerActive = false;
-            armPosition = armRotationSensor.position(vex::rotationUnits::deg);
-            armMotor.spin(vex::directionType::fwd, controllerArmStick, vex::velocityUnits::pct);
-        } else {
-            armManagerActive = true;
+        if (std::abs(controllerArmStick) > 5) {
+            armPosition += controllerArmStick / 100.0 * 2;
         }
 
-        if (controller.ButtonUp.pressing()) armPosition = 33;
+        if (controller.ButtonDown.pressing()) armPosition = 0;
+        if (controller.ButtonRight.pressing()) armPosition = 35;
+        if (controller.ButtonUp.pressing()) armPosition = 153;
 
         vex::wait(20, vex::msec); // Prevent hogging resources
     }
