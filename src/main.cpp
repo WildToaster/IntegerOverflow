@@ -43,8 +43,8 @@ More detail will be added as to how to tune this once I learn more
 */
 
 // Parameters are: {P term, I term, D term, Max I effect, Slew Rate, Max Slew Speed, minOutput}
-pid::PIDGains distanceGains({10, 0, 0, 12, 12, 0.03, 0}); // .045
-pid::PIDGains trackingGains({37, 0.00105, 50, 20, -1, -1, 0});
+pid::PIDGains distanceGains({16, 0.015, 0, 12, 12, 0.03, 0}); // .045
+pid::PIDGains trackingGains({46, 0.01, 0, 20, -1, -1, 0});
 pid::PIDGains turnGains({2.27, 0, 188.675, 7.74, 2, 0.4, 15});
 
 Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25, 13.75, 36.0 / 48.0, distanceGains, trackingGains, turnGains);

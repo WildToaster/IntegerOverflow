@@ -141,10 +141,10 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
             trackingPidPacket.output = std::copysign(straightSpeed, trackingPidPacket.output);
         }
 
-        errorHistory.push_back(distanceError);
-        outputHistory.push_back(distancePidPacket.output / 100);
-        // errorHistory.push_back(trackingError * 10);
-        // outputHistory.push_back(trackingPidPacket.output / 20);
+        // errorHistory.push_back(distanceError);
+        // outputHistory.push_back(distancePidPacket.output / 100);
+        errorHistory.push_back(trackingError * 10);
+        outputHistory.push_back(trackingPidPacket.output / 20);
 
         // printf("%f %f\n", straightSpeed, trackingPidPacket.output);
 
