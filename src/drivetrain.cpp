@@ -169,13 +169,13 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
     // The controller will not move for distances smaller than this.
     const float minDist = 0.3;
     const float maxEndOutput = 0.75;
-    const float timeoutGain = 0.0007; // Shortened from 0.0007 as a 
+    const float timeoutGain = 0.0005; // Shortened from 0.0007 as a 
     const float timeoutStatic = 2;
 
     float startAngle = inertial.rotation(vex::rotationUnits::deg);
     float startTime = brain.Timer.system();
     float maxTime = (timeoutStatic + maxSpeed * std::abs(degrees) * timeoutGain) * 1000;
-    float overshootTime = 1000;
+    float overshootTime = 400;
     bool isStopping = false;
 
     printf("startangle %f\n", startAngle);
@@ -200,8 +200,8 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
 
         // Filter noise from inertial sensor
         error = filters::lowPass(error, pidPacket.lastError);
-        filteredError = filters::lowPass(error, filteredError);
-        error = filteredError;
+        // filteredError = filters::lowPass(error, filteredError);
+        // error = filteredError;
 
         closeToTarget = std::abs(error) < minDist && std::abs(error - pidPacket.lastError) < maxEndOutput;
         // printf("error %f %f\n", error, pidPacket.output);
@@ -224,7 +224,8 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
 
     setBrakeMode(vex::brakeType::brake);
     stop();
-    pid::graphPID(brain, errorHistory, outputHistory, degrees, error, usedTime);
+    pid::graphPID(brain, errorHistory, outputHistory, degrees, degrees - (inertial.rotation(vex::rotationUnits::deg) - startAngle), usedTime);
+    printf("%f\n", degrees - (inertial.rotation(vex::rotationUnits::deg) - startAngle));
 }
 
 void Drivetrain::toPoint(float x, float y, bool reverse, float maxSpeed) {

@@ -42,11 +42,10 @@ to the error and also helps to dampen oscillations.
 More detail will be added as to how to tune this once I learn more
 
 */
-
 // Parameters are: {P term, I term, D term, Max I effect, Slew Rate, Max Slew Speed, minOutput}
 pid::PIDGains distanceGains({16, 0.015, 1800, 12, 12, 0.03, 0}); // .045
 pid::PIDGains trackingGains({46, 0.01, 60, 20, -1, -1, 0});
-pid::PIDGains turnGains({2.5, 0, 0, 7.74, 2, 0.4, 15});
+pid::PIDGains turnGains({2, 0.5, 160, 24, 2, 0.4, 0});
 
 Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25, 13.75, 36.0 / 48.0, distanceGains, trackingGains, turnGains);
 
@@ -73,7 +72,7 @@ void armPositionManager() {
         armPosition = std::min(armMax, std::max(armMin, armPosition));
         if (competition.isEnabled()) {
             float currentError = armPosition - armRotationSensor.position(vex::rotationUnits::deg);
-            armPacket = pid::pidStep(currentError, brain.Timer.system(), armPacket, armGains);
+            // armPacket = pid::pidStep(currentError, brain.Timer.system(), armPacket, armGains);
 
             armMotor.spin(vex::directionType::fwd, 120 * armPacket.output, vex::voltageUnits::mV);
         }
@@ -150,6 +149,9 @@ void autonomous() {
     while (gpsSensor.isCalibrating()) {
         vex::this_thread::sleep_for(20);
     }
+
+    drive.turnAngle(45, 70);
+    return;
 
     switch (selector::selectedRoute) {
         case selector::AutonRoute::RED_LEFT:
