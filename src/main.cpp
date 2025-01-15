@@ -46,7 +46,7 @@ More detail will be added as to how to tune this once I learn more
 // Parameters are: {P term, I term, D term, Max I effect, Slew Rate, Max Slew Speed, minOutput}
 pid::PIDGains distanceGains({16, 0.015, 1800, 12, 12, 0.03, 0}); // .045
 pid::PIDGains trackingGains({46, 0.01, 60, 20, -1, -1, 0});
-pid::PIDGains turnGains({2.27, 0, 188.675, 7.74, 2, 0.4, 15});
+pid::PIDGains turnGains({2.5, 0, 0, 7.74, 2, 0.4, 15});
 
 Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25, 13.75, 36.0 / 48.0, distanceGains, trackingGains, turnGains);
 
@@ -151,9 +151,6 @@ void autonomous() {
         vex::this_thread::sleep_for(20);
     }
 
-    drive.moveDistance(48);
-    return;
-
     switch (selector::selectedRoute) {
         case selector::AutonRoute::RED_LEFT:
             redLeft();
@@ -177,8 +174,6 @@ void autonomous() {
 }
 
 void userControl() {
-    inertial.calibrate();
-
     while (true) {
         /// Drive Code ///
         int controllerForward = controller.Axis3.position();
@@ -224,7 +219,7 @@ void userControl() {
         int controllerArmStick = controller.Axis2.position();
 
         if (std::abs(controllerArmStick) > 5) {
-            armPosition += controllerArmStick / 100.0 * 2;
+            armPosition += controllerArmStick / 100.0 * 3;
         }
 
         if (controller.ButtonDown.pressing()) armPosition = 0;
@@ -244,9 +239,10 @@ int main() {
     drive.setBrakeMode(vex::brakeType::brake);
     selector::start(brain);
     inertial.calibrate();
+    conveyerMotor.setStopping(vex::brakeType::coast);
 
     armMotor.setStopping(vex::brakeType::hold);
-    armMotor.setPosition(armRotationSensor.angle(), vex::rotationUnits::deg);
+    armMotor.setPosition(armRotationSensor.position(vex::rotationUnits::deg), vex::rotationUnits::deg);
 
     vex::thread armPositionThread(armPositionManager);
     armPositionThread.detach();

@@ -19,8 +19,6 @@ vex::motor rightMiddleBase(vex::PORT17, vex::gearSetting::ratio6_1);
 vex::motor rightBackBase(vex::PORT20, vex::gearSetting::ratio6_1);
 vex::motor_group rightBaseMotors(rightFrontBase, rightMiddleBase, rightBackBase);
 
-vex::inertial inertial(vex::PORT3);
-
 //// Aux motors ////
 // Intake
 vex::motor collectionMotor(vex::PORT1, vex::gearSetting::ratio18_1, false);
@@ -36,7 +34,9 @@ vex::digital_out rightClampPiston(brain.ThreeWirePort.A);
 vex::digital_out plowPiston(brain.ThreeWirePort.E);
 
 //// Sensors ////
-vex::gps gpsSensor(vex::PORT5, 4.46, -3.08, vex::distanceUnits::in, 176.85);
+vex::inertial inertial(vex::PORT12);
+
+vex::gps gpsSensor(vex::PORT13, 4.46, -3.08, vex::distanceUnits::in, 176.85);
 vex::rotation armRotationSensor(vex::PORT4, true);
 
 } // namespace config

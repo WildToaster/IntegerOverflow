@@ -14,9 +14,6 @@ extern vex::motor leftMiddleBase;
 extern vex::motor leftBackBase;
 extern vex::motor_group leftBaseMotors;
 
-extern vex::inertial inertial;
-extern vex::inertial inertial2;
-
 // Right
 extern vex::motor rightFrontBase;
 extern vex::motor rightMiddleBase;
@@ -40,6 +37,7 @@ extern vex::digital_out rightClampPiston;
 extern vex::digital_out plowPiston;
 
 //// Sensors ////
+extern vex::inertial inertial;
 extern vex::gps gpsSensor;
 extern vex::rotation armRotationSensor;
 
