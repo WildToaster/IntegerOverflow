@@ -53,7 +53,7 @@ PIDPacket pidStep(float currentError, float currentTime, const PIDPacket& previo
     result.output *= result.slew;
 
     if (std::signbit(result.output) != std::signbit(currentError)) result.output = 0;
-    printf("PID %0.3f %0.3f %0.3f %0.3f %f\n", currentError, p, i, d, result.output);
+    // printf("PID %0.3f %0.3f %0.3f %0.3f %f\n", currentError, p, i, d, result.output);
     return result;
 }
 

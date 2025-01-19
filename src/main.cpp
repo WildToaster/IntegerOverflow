@@ -71,8 +71,11 @@ void armPositionManager() {
     while (true) {
         armPosition = std::min(armMax, std::max(armMin, armPosition));
         if (competition.isEnabled()) {
-            printf("%f\n", armRotationSensor.position(vex::rotationUnits::deg));
-            float currentError = armPosition - armRotationSensor.position(vex::rotationUnits::deg);
+            // Get the sensor position in a range of 0 to 360
+            float sensorPosition = std::fmod(armRotationSensor.position(vex::rotationUnits::deg), 360);
+            // Convert sensor from 0 to 360, to -180 to 180
+            sensorPosition = sensorPosition - (360 * std::floor(std::abs(sensorPosition / 180)));
+            float currentError = armPosition - sensorPosition;
             armPacket = pid::pidStep(currentError, brain.Timer.system(), armPacket, armGains);
 
             armMotor.spin(vex::directionType::fwd, 120 * armPacket.output, vex::voltageUnits::mV);
