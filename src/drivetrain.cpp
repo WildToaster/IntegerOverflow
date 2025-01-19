@@ -202,7 +202,6 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
     float usedTime = 0;
 
     float error = degrees;
-    float filteredError = degrees;
     bool closeToTarget = std::abs(error) < minDist;
 
     pidPacket.lastTime = brain.Timer.system();
