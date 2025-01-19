@@ -45,7 +45,7 @@ More detail will be added as to how to tune this once I learn more
 // Parameters are: {P term, I term, D term, Max I effect, Slew Rate, Max Slew Speed, minOutput}
 pid::PIDGains distanceGains({16, 0.015, 1800, 12, 12, 0.03, 0}); // .045
 pid::PIDGains trackingGains({46, 0.01, 60, 20, -1, -1, 0});
-pid::PIDGains turnGains({2, 0.5, 160, 24, 2, 0.4, 0});
+pid::PIDGains turnGains({2, 0.55, 160, 24, 2, 0.4, 0});
 
 Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25, 13.75, 36.0 / 48.0, distanceGains, trackingGains, turnGains);
 
@@ -71,8 +71,9 @@ void armPositionManager() {
     while (true) {
         armPosition = std::min(armMax, std::max(armMin, armPosition));
         if (competition.isEnabled()) {
+            printf("%f\n", armRotationSensor.position(vex::rotationUnits::deg));
             float currentError = armPosition - armRotationSensor.position(vex::rotationUnits::deg);
-            // armPacket = pid::pidStep(currentError, brain.Timer.system(), armPacket, armGains);
+            armPacket = pid::pidStep(currentError, brain.Timer.system(), armPacket, armGains);
 
             armMotor.spin(vex::directionType::fwd, 120 * armPacket.output, vex::voltageUnits::mV);
         }
@@ -84,7 +85,7 @@ void armPositionManager() {
 
 //// Auton Routes ////
 void redLeft() {
-    drive.moveDistance(-28);
+    /*drive.moveDistance(-28);
     vex::this_thread::sleep_for(300);
     setClamp(true);
     drive.turnAngle(90);
@@ -94,11 +95,30 @@ void redLeft() {
     drive.moveDistance(16);
     drive.turnAngle(110);
     intake(0);
-    drive.moveDistance(42, 40);
+    drive.moveDistance(42, 40);*/
+
+    drive.moveDistance(-20, 100);
+    drive.moveDistance(-4, 70);
+    setClamp(true);
+    drive.turnAngle(60);
+    intake(100);
+    drive.moveDistance(29, 80);
+    vex::this_thread::sleep_for(500);
+    drive.turnAngle(90);
+    drive.moveDistance(18.5, 80);
+    drive.moveDistance(-5, 100);
+    drive.turnAngle(45);
+    drive.moveDistance(8, 100);
+    vex::this_thread::sleep_for(300);
+    armPosition = 153;
+    drive.moveDistance(-8, 100);
+    drive.turnAngle(40);
+    drive.moveDistance(48, 70);
+
 }
 
 void redRight() {
-    drive.moveDistance(-43, 100);
+    /*drive.moveDistance(-43, 100);
     vex::this_thread::sleep_for(300);
     setClamp(true);
     vex::this_thread::sleep_for(300);
@@ -107,11 +127,30 @@ void redRight() {
     drive.turnAngle(75);
     intake(80);
     drive.moveDistance(48, 40);
+    intake(0);*/
+    drive.moveDistance(-27, 100);
+    setClamp(true);
+    drive.turnAngle(-70);
+    intake(90);
+    //vex::this_thread::sleep_for(200);
+    drive.moveDistance(27, 90);
+    vex::this_thread::sleep_for(400);
+    drive.turnAngle(-80);
+    vex::this_thread::sleep_for(200);
+    drive.moveDistance(7, 100);//11.7
+    plowPiston = (true);
+    vex::this_thread::sleep_for(500);
+    armPosition = 153;
+    drive.moveDistance(-12, 70);
+    plowPiston = (false);
+    drive.turnAngle(-70);
+    drive.moveDistance(32.5, 90);
     intake(0);
+
 }
 
 void blueLeft() {
-    drive.moveDistance(-43, 100);
+    /*drive.moveDistance(-43, 100);
     vex::this_thread::sleep_for(300);
     setClamp(true);
     vex::this_thread::sleep_for(300);
@@ -120,11 +159,31 @@ void blueLeft() {
     drive.turnAngle(-75);
     intake(80);
     drive.moveDistance(48, 55);
+    intake(0);*/
+
+    drive.moveDistance(-27, 100);
+    setClamp(true);
+    drive.turnAngle(70);
+    intake(90);
+    //vex::this_thread::sleep_for(200);
+    drive.moveDistance(27, 90);
+    vex::this_thread::sleep_for(400);
+    drive.turnAngle(110);
+    vex::this_thread::sleep_for(200);
+    drive.moveDistance(8.5, 100);//11.7
+    plowPiston = (true);
+    vex::this_thread::sleep_for(500);
+    armPosition = 153;
+    drive.moveDistance(-12, 70);
+    plowPiston = (false);
+    drive.turnAngle(40);
+    drive.moveDistance(32.5, 90);
     intake(0);
+
 }
 
 void blueRight() {
-    drive.moveDistance(-28);
+    /*drive.moveDistance(-28);
     vex::this_thread::sleep_for(300);
     setClamp(true);
     drive.turnAngle(-90);
@@ -134,7 +193,25 @@ void blueRight() {
     drive.moveDistance(16);
     drive.turnAngle(-110);
     intake(0);
-    drive.moveDistance(42, 40);
+    drive.moveDistance(42, 40);*/
+
+    drive.moveDistance(-20, 100);
+    drive.moveDistance(-4, 70);
+    setClamp(true);
+    drive.turnAngle(-60);
+    intake(100);
+    drive.moveDistance(29, 80);
+    vex::this_thread::sleep_for(500);
+    drive.turnAngle(-90);
+    drive.moveDistance(18.5, 80);
+    drive.moveDistance(-5, 100);
+    drive.turnAngle(-45);
+    drive.moveDistance(8, 100);
+    vex::this_thread::sleep_for(300);
+    armPosition = 153;
+    drive.moveDistance(-8, 100);
+    drive.turnAngle(-40);
+    drive.moveDistance(48, 70);
 }
 
 void autonomous() {
@@ -149,9 +226,6 @@ void autonomous() {
     while (gpsSensor.isCalibrating()) {
         vex::this_thread::sleep_for(20);
     }
-
-    drive.turnAngle(45, 70);
-    return;
 
     switch (selector::selectedRoute) {
         case selector::AutonRoute::RED_LEFT:
@@ -221,13 +295,13 @@ void userControl() {
         int controllerArmStick = controller.Axis2.position();
 
         if (std::abs(controllerArmStick) > 5) {
-            armPosition += controllerArmStick / 100.0 * 3;
+            armPosition += controllerArmStick / 100.0 * 4.0;
         }
 
         if (controller.ButtonDown.pressing()) armPosition = 0;
         if (controller.ButtonRight.pressing()) armPosition = 35;
         if (controller.ButtonUp.pressing()) armPosition = 153;
-
+        
         vex::wait(20, vex::msec); // Prevent hogging resources
     }
 }

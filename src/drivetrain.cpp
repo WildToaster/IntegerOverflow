@@ -2,6 +2,9 @@
 #include <cmath>
 #include <algorithm>
 #include "filters.h"
+#include "vex.h"
+#include "robotConfig.h"
+using namespace config;
 
 Drivetrain::Drivetrain(vex::brain& brain, vex::motor_group& leftMotors, vex::motor_group& rightMotors, vex::inertial& inertial, float wheelDiameter, float wheelTrack, float gearing, pid::PIDGains distanceGains, pid::PIDGains trackingGains, pid::PIDGains turnGains):
     brain(brain),
@@ -107,7 +110,10 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
     std::vector<float> errorHistory;
     std::vector<float> outputHistory;
     float usedTime = 0;
-
+    float startTime = brain.Timer.system();
+    //goalTime assumes maxSpeed at all times, tolerance term accounts for acc/deleration + variability
+    float goalTime = std::abs(distance)/(maxSpeed/100 * 450 *(3.75 * 3.14) / 60 / 1000) + 500;//msec 450rpm,3.75"diam,pi,min2sec,msec
+    float currentTime = startTime;
     float distanceError = distance;
     float filteredDistanceError = distance;
     bool closeToTarget = std::abs(distanceError) < minDist;
@@ -156,7 +162,29 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
 
         leftMotors.spin(vex::directionType::fwd, (straightSpeed + trackingPidPacket.output) * (maxSpeed / 100) * 120, vex::voltageUnits::mV);
         rightMotors.spin(vex::directionType::fwd, (straightSpeed - trackingPidPacket.output) * (maxSpeed / 100) * 120, vex::voltageUnits::mV);
+        
+        printf("goalTimer %f\n", goalTime);
+        printf("timer %f\n", currentTime-startTime);
+        /*controller.Screen.clearScreen();
+        controller.Screen.setCursor(1,1);
+        controller.Screen.print("goal: ");
+        controller.Screen.print(goalTime);
+        controller.Screen.setCursor(2,1);
+        controller.Screen.print("current: ");
+        controller.Screen.print(currentTime);
+        controller.Screen.setCursor(3,1);
+        controller.Screen.print("start: ");
+        controller.Screen.print(startTime);*/
 
+
+        if((currentTime-startTime)>goalTime)//timeout
+        {
+            //break;
+            printf("moveDistance timeout");
+            closeToTarget = true;
+        }
+
+        currentTime = brain.Timer.system();
         vex::this_thread::sleep_for(5);
     }
 
