@@ -3,8 +3,6 @@
 #include <algorithm>
 #include "filters.h"
 #include "vex.h"
-#include "robotConfig.h"
-using namespace config;
 
 Drivetrain::Drivetrain(vex::brain& brain, vex::motor_group& leftMotors, vex::motor_group& rightMotors, vex::inertial& inertial, float wheelDiameter, float wheelTrack, float gearing, pid::PIDGains distanceGains, pid::PIDGains trackingGains, pid::PIDGains turnGains):
     brain(brain),
