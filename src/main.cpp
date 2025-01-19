@@ -88,7 +88,6 @@ void armPositionManager() {
 
 //// Auton Routes ////
 void redLeft() {
-
     drive.moveDistance(-20, 100);
     drive.moveDistance(-4, 70);
     setClamp(true);
@@ -106,7 +105,6 @@ void redLeft() {
     drive.moveDistance(-8, 100);
     drive.turnAngle(40);
     drive.moveDistance(48, 70);
-
 }
 
 void redRight() {
@@ -150,7 +148,6 @@ void blueLeft() {
     drive.turnAngle(40);
     drive.moveDistance(32.5, 90);
     intake(0);
-
 }
 
 void blueRight() {
@@ -171,6 +168,64 @@ void blueRight() {
     drive.moveDistance(-8, 100);
     drive.turnAngle(-40);
     drive.moveDistance(48, 70);
+}
+
+void skills() {
+    /*
+    Put on wall stake (extake too)
+    Forward 28
+    Turn -90
+    Backward 28
+    clamp on
+    turn 180
+    intake on
+    forward 29
+    trn -130 **Estimate**
+    fwd 30
+    bwd 50
+    clm off
+    fwd 30
+    trn 130
+    bwd 80
+    clm on
+    trn 180
+    fwd 30
+    trn 130
+    fwd 30
+    bwd 50
+    clm 0
+    fwd 24
+    itk 0
+    */
+
+   intake(70);
+   vex::this_thread::sleep_for(1000);
+   intake(-70);
+   vex::this_thread::sleep_for(200);
+   intake(0);
+   drive.moveDistance(28);
+   drive.turnAngle(-90);
+   drive.moveDistance(-28);
+   setClamp(true);
+   drive.turnAngle(180);
+   intake(90);
+   drive.moveDistance(29);
+   drive.turnAngle(-130);
+   drive.moveDistance(30);
+   drive.moveDistance(-50);
+   setClamp(false);
+   drive.moveDistance(30);
+   drive.turnAngle(130);
+   drive.moveDistance(-80);
+   setClamp(true);
+   drive.turnAngle(180);
+   drive.moveDistance(30);
+   drive.turnAngle(130);
+   drive.moveDistance(30);
+   drive.moveDistance(-50);
+   setClamp(false);
+   drive.moveDistance(24);
+   intake(0);
 }
 
 void autonomous() {
@@ -198,6 +253,9 @@ void autonomous() {
             break;
         case selector::AutonRoute::BLUE_RIGHT:
             blueRight();
+            break;
+        case selector::AutonRoute::SKILLS:
+            skills();
             break;
         case selector::AutonRoute::NONE:
             controller.rumble("."); // Notify that it is intentially doing nothing
