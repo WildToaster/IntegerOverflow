@@ -85,17 +85,6 @@ void armPositionManager() {
 
 //// Auton Routes ////
 void redLeft() {
-    /*drive.moveDistance(-28);
-    vex::this_thread::sleep_for(300);
-    setClamp(true);
-    drive.turnAngle(90);
-    intake(60);
-    drive.moveDistance(14.5);
-    drive.turnAngle(90);
-    drive.moveDistance(16);
-    drive.turnAngle(110);
-    intake(0);
-    drive.moveDistance(42, 40);*/
 
     drive.moveDistance(-20, 100);
     drive.moveDistance(-4, 70);
@@ -118,16 +107,6 @@ void redLeft() {
 }
 
 void redRight() {
-    /*drive.moveDistance(-43, 100);
-    vex::this_thread::sleep_for(300);
-    setClamp(true);
-    vex::this_thread::sleep_for(300);
-    drive.moveDistance(18);
-    // drive.turnAngle(-55); Clearing out corner, cut because of time
-    drive.turnAngle(75);
-    intake(80);
-    drive.moveDistance(48, 40);
-    intake(0);*/
     drive.moveDistance(-27, 100);
     setClamp(true);
     drive.turnAngle(-70);
@@ -137,7 +116,7 @@ void redRight() {
     vex::this_thread::sleep_for(400);
     drive.turnAngle(-80);
     vex::this_thread::sleep_for(200);
-    drive.moveDistance(7, 100);//11.7
+    drive.moveDistance(7, 100); // 11.7
     plowPiston = (true);
     vex::this_thread::sleep_for(500);
     armPosition = 153;
@@ -150,17 +129,6 @@ void redRight() {
 }
 
 void blueLeft() {
-    /*drive.moveDistance(-43, 100);
-    vex::this_thread::sleep_for(300);
-    setClamp(true);
-    vex::this_thread::sleep_for(300);
-    drive.moveDistance(18);
-    // drive.turnAngle(-55); Clearing out corner, cut because of time
-    drive.turnAngle(-75);
-    intake(80);
-    drive.moveDistance(48, 55);
-    intake(0);*/
-
     drive.moveDistance(-27, 100);
     setClamp(true);
     drive.turnAngle(70);
@@ -170,7 +138,7 @@ void blueLeft() {
     vex::this_thread::sleep_for(400);
     drive.turnAngle(110);
     vex::this_thread::sleep_for(200);
-    drive.moveDistance(8.5, 100);//11.7
+    drive.moveDistance(8.5, 100); // 11.7
     plowPiston = (true);
     vex::this_thread::sleep_for(500);
     armPosition = 153;
@@ -183,18 +151,6 @@ void blueLeft() {
 }
 
 void blueRight() {
-    /*drive.moveDistance(-28);
-    vex::this_thread::sleep_for(300);
-    setClamp(true);
-    drive.turnAngle(-90);
-    intake(60);
-    drive.moveDistance(14.5);
-    drive.turnAngle(-90);
-    drive.moveDistance(16);
-    drive.turnAngle(-110);
-    intake(0);
-    drive.moveDistance(42, 40);*/
-
     drive.moveDistance(-20, 100);
     drive.moveDistance(-4, 70);
     setClamp(true);
@@ -301,7 +257,7 @@ void userControl() {
         if (controller.ButtonDown.pressing()) armPosition = 0;
         if (controller.ButtonRight.pressing()) armPosition = 35;
         if (controller.ButtonUp.pressing()) armPosition = 153;
-        
+
         vex::wait(20, vex::msec); // Prevent hogging resources
     }
 }

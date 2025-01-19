@@ -165,21 +165,8 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
         
         printf("goalTimer %f\n", goalTime);
         printf("timer %f\n", currentTime-startTime);
-        /*controller.Screen.clearScreen();
-        controller.Screen.setCursor(1,1);
-        controller.Screen.print("goal: ");
-        controller.Screen.print(goalTime);
-        controller.Screen.setCursor(2,1);
-        controller.Screen.print("current: ");
-        controller.Screen.print(currentTime);
-        controller.Screen.setCursor(3,1);
-        controller.Screen.print("start: ");
-        controller.Screen.print(startTime);*/
 
-
-        if((currentTime-startTime)>goalTime)//timeout
-        {
-            //break;
+        if(currentTime - startTime > goalTime) {
             printf("moveDistance timeout");
             closeToTarget = true;
         }
