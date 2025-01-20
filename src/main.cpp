@@ -198,34 +198,47 @@ void skills() {
     itk 0
     */
 
-   intake(70);
-   vex::this_thread::sleep_for(1000);
-   intake(-70);
-   vex::this_thread::sleep_for(200);
-   intake(0);
-   drive.moveDistance(28);
-   drive.turnAngle(-90);
-   drive.moveDistance(-28);
-   setClamp(true);
-   drive.turnAngle(180);
-   intake(90);
-   drive.moveDistance(29);
-   drive.turnAngle(-130);
-   drive.moveDistance(30);
-   drive.moveDistance(-50);
-   setClamp(false);
-   drive.moveDistance(30);
-   drive.turnAngle(130);
-   drive.moveDistance(-80);
-   setClamp(true);
-   drive.turnAngle(180);
-   drive.moveDistance(30);
-   drive.turnAngle(130);
-   drive.moveDistance(30);
-   drive.moveDistance(-50);
-   setClamp(false);
-   drive.moveDistance(24);
-   intake(0);
+    intake(70);
+    vex::this_thread::sleep_for(750);
+    intake(-70);
+    vex::this_thread::sleep_for(200);
+    intake(0);
+    drive.moveDistance(14);
+    drive.turnAngle(-90);
+    drive.moveDistance(-22);
+    setClamp(true);
+    drive.turnAngle(180);
+    intake(100);
+    drive.moveDistance(20, 50);
+    vex::this_thread::sleep_for(750);
+    drive.moveDistance(19, 20);
+    drive.moveDistance(-8,55);
+    drive.turnAngle(225);
+    drive.moveDistance(42);
+    drive.moveDistance(-64, 70);
+    setClamp(false);
+    intake(-100);
+    vex::this_thread::sleep_for(400);
+    intake(0);
+    drive.moveDistance(12);
+    drive.turnAngle(130);
+
+    drive.moveDistance(-80);
+    setClamp(true);
+    drive.turnAngle(180);
+    intake(100);
+    drive.moveDistance(20, 50);
+    vex::this_thread::sleep_for(750);
+    drive.moveDistance(19, 20);
+    drive.moveDistance(-8,55);
+    drive.turnAngle(-225);
+    drive.moveDistance(42);
+    drive.moveDistance(-76, 70);
+    setClamp(false);
+    intake(-100);
+    vex::this_thread::sleep_for(400);
+    intake(0);
+    drive.moveDistance(24);
 }
 
 void autonomous() {

@@ -161,11 +161,8 @@ void Drivetrain::moveDistance(float distance, float maxSpeed) {
         leftMotors.spin(vex::directionType::fwd, (straightSpeed + trackingPidPacket.output) * (maxSpeed / 100) * 120, vex::voltageUnits::mV);
         rightMotors.spin(vex::directionType::fwd, (straightSpeed - trackingPidPacket.output) * (maxSpeed / 100) * 120, vex::voltageUnits::mV);
         
-        printf("goalTimer %f\n", goalTime);
-        printf("timer %f\n", currentTime-startTime);
-
         if(currentTime - startTime > goalTime) {
-            printf("moveDistance timeout");
+            printf("WARNING: MoveDistance timeout on move %0.1fin @ %0.1f%%\n", distance, maxSpeed);
             closeToTarget = true;
         }
 
@@ -190,8 +187,6 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
     float maxTime = (timeoutStatic + maxSpeed * std::abs(degrees) * timeoutGain) * 1000;
     float overshootTime = 400;
     bool isStopping = false;
-
-    printf("startangle %f\n", startAngle);
 
     pid::PIDPacket pidPacket;
     pidPacket.lastError = degrees;
@@ -237,7 +232,6 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
     setBrakeMode(vex::brakeType::brake);
     stop();
     pid::graphPID(brain, errorHistory, outputHistory, degrees, degrees - (inertial.rotation(vex::rotationUnits::deg) - startAngle), usedTime);
-    printf("%f\n", degrees - (inertial.rotation(vex::rotationUnits::deg) - startAngle));
 }
 
 void Drivetrain::toPoint(float x, float y, bool reverse, float maxSpeed) {
