@@ -215,13 +215,14 @@ void skills() {
     drive.moveDistance(-8,55);
     drive.turnAngle(225);
     drive.moveDistance(42);
-    drive.moveDistance(-64, 70);
+    drive.moveDistance(-50, 70);
+    drive.moveDistance(-16, 35);
     setClamp(false);
     intake(-100);
     vex::this_thread::sleep_for(400);
     intake(0);
     drive.moveDistance(12);
-    drive.turnAngle(130);
+    drive.turnAngle(180 - gpsSensor.heading());
 
     drive.moveDistance(-80);
     setClamp(true);
