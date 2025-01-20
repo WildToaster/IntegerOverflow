@@ -31,7 +31,7 @@ vex::digital_out leftClampPiston(brain.ThreeWirePort.C);
 vex::digital_out rightClampPiston(brain.ThreeWirePort.A);
 
 // Plow
-vex::digital_out plowPiston(brain.ThreeWirePort.E);
+vex::digital_out plowPiston(brain.ThreeWirePort.B);
 
 //// Sensors ////
 vex::inertial inertial(vex::PORT12);
