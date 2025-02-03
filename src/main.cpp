@@ -89,7 +89,7 @@ void armPositionManager() {
 //// Auton Routes ////
 void redLeft() {
     drive.moveDistance(-20, 100);
-    drive.moveDistance(-4, 70);
+    drive.moveDistance(-5.5, 70);
     setClamp(true);
     drive.turnAngle(60);
     intake(100);
@@ -117,6 +117,8 @@ void redRight() {
     vex::this_thread::sleep_for(400);
     drive.turnAngle(-80);
     vex::this_thread::sleep_for(200);
+    setClamp(false);
+    intake(0);
     drive.moveDistance(7, 100); // 11.7
     plowPiston = (true);
     vex::this_thread::sleep_for(500);
@@ -125,8 +127,6 @@ void redRight() {
     plowPiston = (false);
     drive.turnAngle(-70);
     drive.moveDistance(32.5, 90);
-    intake(0);
-
 }
 
 void blueLeft() {
@@ -139,6 +139,8 @@ void blueLeft() {
     vex::this_thread::sleep_for(400);
     drive.turnAngle(110);
     vex::this_thread::sleep_for(200);
+    setClamp(false);
+    intake(0);
     drive.moveDistance(8.5, 100); // 11.7
     plowPiston = (true);
     vex::this_thread::sleep_for(500);
@@ -147,7 +149,6 @@ void blueLeft() {
     plowPiston = (false);
     drive.turnAngle(40);
     drive.moveDistance(32.5, 90);
-    intake(0);
 }
 
 void blueRight() {
