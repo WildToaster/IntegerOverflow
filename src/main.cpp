@@ -332,7 +332,12 @@ void userControl() {
 
         if (controller.ButtonDown.pressing()) armPosition = 0;
         if (controller.ButtonRight.pressing()) armPosition = 35;
-        if (controller.ButtonUp.pressing()) armPosition = 153;
+        if (controller.ButtonUp.pressing()) {
+            armPosition = 153;
+            intake(-100);
+            vex::this_thread::sleep_for(300);
+            intake(0);
+        }
 
         vex::wait(20, vex::msec); // Prevent hogging resources
     }
