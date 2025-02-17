@@ -15,4 +15,6 @@ struct Location {
 extern Location getLocation();
 extern Location getAverageLocation(int iterations = 10);
 
+extern void start();
+
 }
