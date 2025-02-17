@@ -359,7 +359,7 @@ int main() {
     competition.drivercontrol(userControl);
 
     // Initialize things
-    drive.setBrakeMode(vex::brakeType::brake);
+    drive.setBrakeMode(vex::brakeType::coast);
     selector::start(brain);
     inertial.calibrate();
     conveyerMotor.setStopping(vex::brakeType::coast);
@@ -369,6 +369,8 @@ int main() {
 
     vex::thread armPositionThread(armPositionManager);
     armPositionThread.detach();
+
+    nav::start();
 
     // Prevent main from exiting with an infinite loop.
     while (true) {

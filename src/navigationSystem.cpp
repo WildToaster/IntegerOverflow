@@ -12,6 +12,8 @@ float baselineOdomX = 0;
 float baselineOdomY = 0;
 float baselineOdomHeading = 0;
 
+vex::thread odomThread;
+
 float getAverageLeftOdomWheelPosition() {
     return (config::leftFrontBase.position(vex::rotationUnits::deg) +
         config::leftMiddleBase.position(vex::rotationUnits::deg) + 
@@ -26,9 +28,9 @@ float getAverageRightOdomWheelPosition() {
 
 // See https://wiki.purduesigbots.com/software/odometry
 void odometryLoop() {
-    const float wheelCircumference = 3.25 * M_PI;
-    const float gearing = 48.0 / 36.0; // Wheel / motor
-    const float wheelbase = 13.75;
+    const float wheelCircumference = 3.25 * M_PI * 1.01384125992;
+    const float gearing = 36.0 / 48.0;
+    const float wheelbase = 12.75;
 
     float lastLeftDist = 0;
     float lastRightDist = 0;
@@ -46,16 +48,20 @@ void odometryLoop() {
         float deltaLeftDist = totalLeftDist - lastLeftDist;
         float deltaRightDist = totalRightDist - lastRightDist;
 
+        printf("L %f %f %f  R %f %f %f\n", leftEncoder, totalLeftDist, deltaLeftDist, rightEncoder, totalRightDist, deltaRightDist);
+
         // Update previous encoder values
         lastLeftDist = totalLeftDist;
         lastRightDist = totalRightDist;
         lastHeading = odomHeading;
 
         // Calculate new orientation in radians
-        float totalHeading = baselineOdomHeading + (totalLeftDist - totalRightDist) / wheelbase;
+        odomHeading = baselineOdomHeading + (totalLeftDist - totalRightDist) / wheelbase;
 
         // Calculate change in orientation
-        float deltaHeading = totalHeading - lastHeading;
+        float deltaHeading = odomHeading - lastHeading;
+
+        printf("Headings %f %f\n", odomHeading, deltaHeading);
 
         float localOffset;
         if (deltaHeading == 0) {
@@ -70,11 +76,18 @@ void odometryLoop() {
         float globalOffsetX = -localOffset * std::sin(-offsetAngle);
         float globalOffsetY =  localOffset * std::cos(-offsetAngle);
 
+        printf("offsets %f %f %f %f\n", localOffset, offsetAngle, globalOffsetX, globalOffsetY);
+
         odomX += globalOffsetX;
         odomY += globalOffsetY;
 
+        printf("Odom %f %f %f\n\n", odomX, odomY, odomHeading * 180 / M_PI);
         vex::this_thread::sleep_for(5);
     }
+}
+
+void start() {
+    odomThread = vex::thread(odometryLoop);
 }
 
 Location getGPSPacket() {
