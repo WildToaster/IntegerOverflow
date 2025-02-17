@@ -8,11 +8,20 @@ float odomX = 0;
 float odomY = 0;
 float odomHeading = 0;
 
-float baselineOdomX = 0;
-float baselineOdomY = 0;
-float baselineOdomHeading = 0;
+float lastOdomLeftDist = 0;
+float lastOdomRightDist = 0;
+float lastOdomHeading = 0;
+
+Location odomOffset(0, 0, 0);
 
 vex::thread odomThread;
+
+Location getGPSPacket() {
+    return Location(
+        config::gpsSensor.xPosition(vex::distanceUnits::in),
+        config::gpsSensor.yPosition(vex::distanceUnits::in),
+        config::gpsSensor.heading());
+}
 
 float getAverageLeftOdomWheelPosition() {
     return (config::leftFrontBase.position(vex::rotationUnits::deg) +
@@ -32,9 +41,8 @@ void odometryLoop() {
     const float gearing = 36.0 / 48.0;
     const float wheelbase = 12.75 * 0.98720303194;
 
-    float lastLeftDist = 0;
-    float lastRightDist = 0;
-    float lastHeading = 0;
+    config::leftBaseMotors.resetPosition();
+    config::rightBaseMotors.resetPosition();
 
     while (true) {
         // Get current encoder values
@@ -45,19 +53,19 @@ void odometryLoop() {
         float totalLeftDist = leftEncoder * gearing / 360 * wheelCircumference;
         float totalRightDist = rightEncoder * gearing / 360 * wheelCircumference;
 
-        float deltaLeftDist = totalLeftDist - lastLeftDist;
-        float deltaRightDist = totalRightDist - lastRightDist;
+        float deltaLeftDist = totalLeftDist - lastOdomLeftDist;
+        float deltaRightDist = totalRightDist - lastOdomRightDist;
 
         // Update previous encoder values
-        lastLeftDist = totalLeftDist;
-        lastRightDist = totalRightDist;
-        lastHeading = odomHeading;
+        lastOdomLeftDist = totalLeftDist;
+        lastOdomRightDist = totalRightDist;
+        lastOdomHeading = odomHeading;
 
         // Calculate new orientation in radians
-        odomHeading = baselineOdomHeading + (totalLeftDist - totalRightDist) / wheelbase;
+        odomHeading = (totalLeftDist - totalRightDist) / wheelbase;
 
         // Calculate change in orientation
-        float deltaHeading = odomHeading - lastHeading;
+        float deltaHeading = odomHeading - lastOdomHeading;
 
         float localOffset;
         if (deltaHeading == 0) {
@@ -67,7 +75,7 @@ void odometryLoop() {
         }
 
         // Transform localOffset into the global frame
-        float offsetAngle = lastHeading + deltaHeading / 2;
+        float offsetAngle = lastOdomHeading + deltaHeading / 2;
 
         float globalOffsetX = -localOffset * std::sin(-offsetAngle);
         float globalOffsetY =  localOffset * std::cos(-offsetAngle);
@@ -83,19 +91,12 @@ void start() {
     odomThread = vex::thread(odometryLoop);
 }
 
-Location getGPSPacket() {
-    return Location(
-        config::gpsSensor.xPosition(vex::distanceUnits::in),
-        config::gpsSensor.yPosition(vex::distanceUnits::in),
-        config::gpsSensor.heading());
-}
-
 Location getLocation() {
     Location currentLocation;
 
-    float xPosSum = odomX;
-    float yPosSum = odomY;
-    float headingSum = odomHeading + config::inertial.rotation(vex::rotationUnits::deg);
+    float xPosSum = odomX + odomOffset.x;
+    float yPosSum = odomY + odomOffset.y;
+    float headingSum = (odomHeading * 180 / M_PI + odomOffset.heading) + config::inertial.rotation(vex::rotationUnits::deg);
     bool usingGps = config::gpsSensor.quality() >= 95;
 
     if (usingGps) {
@@ -110,10 +111,10 @@ Location getLocation() {
     } else {
         currentLocation.x = xPosSum;
         currentLocation.y = yPosSum;
-        currentLocation.heading = headingSum / 2;
+        currentLocation.heading = headingSum;
     }
 
-    return getGPSPacket();
+    return currentLocation;
 }
 
 Location getAverageLocation(int iterations) {
@@ -132,6 +133,24 @@ Location getAverageLocation(int iterations) {
     locationSum.y /= iterations;
     locationSum.heading /= iterations;
     return locationSum;
+}
+
+bool syncToGPS() {
+    if (config::gpsSensor.quality() < 95) return false;
+    Location gpsLoc = getGPSPacket();
+
+    odomOffset = gpsLoc;
+    odomX = 0;
+    odomY = 0;
+    odomHeading = 0;
+    lastOdomHeading = 0;
+    lastOdomLeftDist = 0;
+    lastOdomRightDist = 0;
+    config::leftBaseMotors.resetPosition();
+    config::rightBaseMotors.resetPosition();
+
+    config::inertial.setRotation(gpsLoc.heading, vex::rotationUnits::deg);
+    return true;
 }
 
 }

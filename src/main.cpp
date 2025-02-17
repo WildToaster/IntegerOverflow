@@ -266,6 +266,8 @@ void autonomous() {
         vex::this_thread::sleep_for(20);
     }
 
+    printf("%d\n", nav::syncToGPS());
+
     switch (selector::selectedRoute) {
         case selector::AutonRoute::RED_LEFT:
             redLeft();
@@ -293,6 +295,8 @@ void autonomous() {
 
 void userControl() {
     while (true) {
+        nav::Location loc = nav::getLocation();
+        printf("%f %f %f\n", loc.x, loc.y, loc.heading);
         /// Drive Code ///
         int controllerForward = controller.Axis3.position();
         int controllerTurn = controller.Axis4.position() * 0.85;
@@ -347,6 +351,10 @@ void userControl() {
             intake(-100);
             vex::this_thread::sleep_for(300);
             intake(0);
+        }
+
+        if (controller.ButtonLeft.pressing()) {
+            printf("%d\n", nav::syncToGPS());
         }
 
         vex::wait(20, vex::msec); // Prevent hogging resources
