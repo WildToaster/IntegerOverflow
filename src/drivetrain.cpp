@@ -211,7 +211,7 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
         // error = filteredError;
 
         closeToTarget = std::abs(error) < minDist && std::abs(error - pidPacket.lastError) < maxEndOutput;
-        // printf("error %f %f\n", error, pidPacket.output);
+        printf("error %f %f\n", error, pidPacket.output);
 
         usedTime += brain.Timer.system() - pidPacket.lastTime;
         if (error > 0 != pidPacket.lastError > 0) {

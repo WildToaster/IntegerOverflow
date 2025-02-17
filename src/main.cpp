@@ -44,7 +44,7 @@ More detail will be added as to how to tune this once I learn more
 */
 // Parameters are: {P term, I term, D term, Max I effect, Slew Rate, Max Slew Speed, minOutput}
 pid::PIDGains distanceGains({16, 0.015, 1800, 12, 12, 0.03, 0}); // .045
-pid::PIDGains trackingGains({46, 0.01, 60, 20, -1, -1, 0});
+pid::PIDGains trackingGains({46, 0.01, 40, 20, -1, -1, 0});
 pid::PIDGains turnGains({2, 0.55, 160, 24, 2, 0.4, 0});
 
 Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25, 13.75, 36.0 / 48.0, distanceGains, trackingGains, turnGains);
@@ -100,7 +100,7 @@ void redLeft() {
     drive.moveDistance(-5, 100);
     drive.turnAngle(45);
     drive.moveDistance(8, 100);
-    vex::this_thread::sleep_for(300);
+    vex::this_thread::sleep_for(800);
     armPosition = 153;
     drive.moveDistance(-8, 100);
     drive.turnAngle(40);
@@ -114,19 +114,19 @@ void redRight() {
     intake(90);
     //vex::this_thread::sleep_for(200);
     drive.moveDistance(27, 90);
-    vex::this_thread::sleep_for(400);
-    drive.turnAngle(-80);
-    vex::this_thread::sleep_for(200);
-    setClamp(false);
-    intake(0);
-    drive.moveDistance(7, 100); // 11.7
-    plowPiston = (true);
-    vex::this_thread::sleep_for(500);
-    armPosition = 153;
-    drive.moveDistance(-12, 70);
-    plowPiston = (false);
-    drive.turnAngle(-70);
-    drive.moveDistance(32.5, 90);
+    // vex::this_thread::sleep_for(400);
+    // drive.turnAngle(-80);
+    // vex::this_thread::sleep_for(200);
+    // setClamp(false);
+    // intake(0);
+    // drive.moveDistance(7, 100); // 11.7
+    // plowPiston = (true);
+    // vex::this_thread::sleep_for(500);
+    // armPosition = 153;
+    // drive.moveDistance(-12, 70);
+    // plowPiston = (false);
+    // drive.turnAngle(-70);
+    // drive.moveDistance(32.5, 90);
 }
 
 void blueLeft() {
@@ -134,7 +134,7 @@ void blueLeft() {
     setClamp(true);
     drive.turnAngle(70);
     intake(90);
-    //vex::this_thread::sleep_for(200);
+    vex::this_thread::sleep_for(200);
     drive.moveDistance(27, 90);
     vex::this_thread::sleep_for(400);
     drive.turnAngle(110);
@@ -144,7 +144,7 @@ void blueLeft() {
     drive.moveDistance(8.5, 100); // 11.7
     plowPiston = (true);
     vex::this_thread::sleep_for(500);
-    armPosition = 153;
+    // armPosition = 153;
     drive.moveDistance(-12, 70);
     plowPiston = (false);
     drive.turnAngle(40);
@@ -152,23 +152,33 @@ void blueLeft() {
 }
 
 void blueRight() {
-    drive.moveDistance(-20, 100);
-    drive.moveDistance(-4, 70);
+    collectionMotor.spin(vex::directionType::rev, 100, vex::velocityUnits::pct);
+    plowPiston.set(true);
+    drive.moveDistance(40, 100);
+    collectionMotor.stop();
+    collectionMotor.stop();
+    vex::this_thread::sleep_for(200);
+    drive.turnAngle(180 + 180 + 55);
+    drive.moveDistance(-28);
     setClamp(true);
-    drive.turnAngle(-60);
     intake(100);
-    drive.moveDistance(29, 80);
-    vex::this_thread::sleep_for(500);
-    drive.turnAngle(-90);
-    drive.moveDistance(18.5, 80);
-    drive.moveDistance(-5, 100);
-    drive.turnAngle(-45);
-    drive.moveDistance(8, 100);
-    vex::this_thread::sleep_for(300);
-    armPosition = 153;
-    drive.moveDistance(-8, 100);
-    drive.turnAngle(-40);
-    drive.moveDistance(48, 70);
+    // drive.moveDistance(-20, 100);
+    // drive.moveDistance(-5.5, 70);
+    // setClamp(true);
+    // drive.turnAngle(-60);
+    // intake(100);
+    // drive.moveDistance(27, 80);
+    // vex::this_thread::sleep_for(500);
+    // drive.turnAngle(-90);
+    // drive.moveDistance(17.5, 80);
+    // drive.moveDistance(-5, 100);
+    // drive.turnAngle(-45);
+    // drive.moveDistance(8, 100);
+    // vex::this_thread::sleep_for(800);
+    // armPosition = 153;
+    // drive.moveDistance(-8, 100);
+    // drive.turnAngle(-40);
+    // drive.moveDistance(48, 70);
 }
 
 void skills() {
