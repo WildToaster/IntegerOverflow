@@ -48,8 +48,6 @@ void odometryLoop() {
         float deltaLeftDist = totalLeftDist - lastLeftDist;
         float deltaRightDist = totalRightDist - lastRightDist;
 
-        printf("L %f %f %f  R %f %f %f\n", leftEncoder, totalLeftDist, deltaLeftDist, rightEncoder, totalRightDist, deltaRightDist);
-
         // Update previous encoder values
         lastLeftDist = totalLeftDist;
         lastRightDist = totalRightDist;
@@ -60,8 +58,6 @@ void odometryLoop() {
 
         // Calculate change in orientation
         float deltaHeading = odomHeading - lastHeading;
-
-        printf("Headings %f %f\n", odomHeading, deltaHeading);
 
         float localOffset;
         if (deltaHeading == 0) {
@@ -76,12 +72,9 @@ void odometryLoop() {
         float globalOffsetX = -localOffset * std::sin(-offsetAngle);
         float globalOffsetY =  localOffset * std::cos(-offsetAngle);
 
-        printf("offsets %f %f %f %f\n", localOffset, offsetAngle, globalOffsetX, globalOffsetY);
-
         odomX += globalOffsetX;
         odomY += globalOffsetY;
 
-        printf("Odom %f %f %f\n\n", odomX, odomY, odomHeading * 180 / M_PI);
         vex::this_thread::sleep_for(5);
     }
 }
@@ -98,6 +91,28 @@ Location getGPSPacket() {
 }
 
 Location getLocation() {
+    Location currentLocation;
+
+    float xPosSum = odomX;
+    float yPosSum = odomY;
+    float headingSum = odomHeading + config::inertial.rotation(vex::rotationUnits::deg);
+    bool usingGps = config::gpsSensor.quality() >= 95;
+
+    if (usingGps) {
+        Location gpsLocation = getGPSPacket();
+        xPosSum += gpsLocation.x;
+        yPosSum += gpsLocation.y;
+        headingSum += gpsLocation.heading;
+
+        currentLocation.x = xPosSum / 2;
+        currentLocation.y = yPosSum / 2;
+        currentLocation.heading = headingSum / 3;
+    } else {
+        currentLocation.x = xPosSum;
+        currentLocation.y = yPosSum;
+        currentLocation.heading = headingSum / 2;
+    }
+
     return getGPSPacket();
 }
 
