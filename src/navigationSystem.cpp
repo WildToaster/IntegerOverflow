@@ -30,7 +30,7 @@ float getAverageRightOdomWheelPosition() {
 void odometryLoop() {
     const float wheelCircumference = 3.25 * M_PI * 1.01384125992;
     const float gearing = 36.0 / 48.0;
-    const float wheelbase = 12.75;
+    const float wheelbase = 12.75 * 0.98720303194;
 
     float lastLeftDist = 0;
     float lastRightDist = 0;
