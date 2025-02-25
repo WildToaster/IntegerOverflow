@@ -243,8 +243,11 @@ float getDistanceBetweenPoints(float startX, float startY, float endX, float end
 }
 
 void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSpeed) {
-    pid::PIDGains xyPID(16, 0.015, 1800, 12, -1, 0, 0);
-    pid::PIDGains angularPID(2, 0.55, 160, 24, -1, 0, 0);
+    // pid::PIDGains xyPID(16, 0.015, 1800, 12, -1, 0, 0);
+    // pid::PIDGains angularPID(2, 0.55, 160, 24, -1, 0, 0);
+    pid::PIDGains xyPID(1, 0, 0, 12, -1, 0, 0);
+    pid::PIDGains angularPID(1, 0, 0, 24, -1, 0, 0);
+
     const float lookaheadDist = 12; // Aim for 6 inches past the target
     const float turnPriority = 50;
     const float slewRate = 0.05;
@@ -256,8 +259,7 @@ void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSp
     float inRangeTimeout = 200;
     const float minimumDistance = 2;
 
-    // nav::Location startLocation = nav::getLocation();
-    nav::Location startLocation(0, 0, 0);
+    nav::Location startLocation = nav::getLocation();
 
     float initialTargetAngle = atan2(targetY - startLocation.y, targetX - startLocation.x);
     float aimX = targetX + lookaheadDist * std::cos(initialTargetAngle);
@@ -272,22 +274,21 @@ void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSp
 
     while (stalledTimeout > 0 && inRangeTimeout > 0) {
         printf("\n");
-        nav::Location currentLocation(0, 0, 0);
+        nav::Location currentLocation = nav::getLocation();
         int32_t currentTime = brain.Timer.system();
         int32_t deltaTime = currentTime - xyPacket.lastTime;
 
         float currentDistance = (currentLocation.x - startLocation.x) * cos - (currentLocation.y - startLocation.y) * sin + startLocation.x;
         float distanceRemaining = targetDistance - currentDistance;
 
-        printf("%f %f\n", sin, cos);
-        printf("%0.3f %0.3f %0.3f\n", initialTargetAngle * 180 / M_PI, targetDistance, currentDistance);
+        // printf("%f %f\n", sin, cos);
+        // printf("%0.3f %0.3f %0.3f\n", initialTargetAngle * 180 / M_PI, targetDistance, currentDistance);
 
         float targetHeading = std::atan2(aimX - currentLocation.x, aimY - currentLocation.y) * 180 / M_PI;
         float headingOffset = targetHeading - currentLocation.heading;
         if (std::abs(headingOffset) > 180) headingOffset = 360 - std::abs(headingOffset);
 
         printf("Errors %0.3f %0.3f %0.3f\n", distanceRemaining, targetHeading - currentLocation.heading, headingOffset);
-        continue;
 
         xyPacket = pid::pidStep(distanceRemaining, currentTime, xyPacket, xyPID);
         angularPacket = pid::pidStep(headingOffset, currentTime, angularPacket, angularPID);
@@ -295,7 +296,7 @@ void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSp
         float xySpeed = xyPacket.output;
         float angularSpeed = angularPacket.output;
 
-        xySpeed *= std::fmin(1 / (xySpeed * std::abs(headingOffset)), 1);
+        xySpeed *= std::fmin(1 / (turnPriority * std::abs(headingOffset)), 1);
         
         float leftSpeed = xySpeed + angularSpeed;
         float rightSpeed = xySpeed - angularSpeed;
@@ -314,14 +315,16 @@ void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSp
             rightSpeed *= correction;
         }
 
-        leftMotors.spin(vex::directionType::fwd, leftSpeed * 120, vex::voltageUnits::mV);
-        rightMotors.spin(vex::directionType::fwd, rightSpeed * 120, vex::voltageUnits::mV);
+        // leftMotors.spin(vex::directionType::fwd, leftSpeed * 120, vex::voltageUnits::mV);
+        // rightMotors.spin(vex::directionType::fwd, rightSpeed * 120, vex::voltageUnits::mV);
 
         if (distanceRemaining < minimumDistance) {
             inRangeTimeout -= deltaTime;
         }
 
         slew = std::fmin(slew + slewRate, 1);
+
+        printf("Outputs %.3f %.3f %.3f %.3f\n", xySpeed, angularSpeed, leftSpeed, rightSpeed);
 
         vex::this_thread::sleep_for(5);
     }

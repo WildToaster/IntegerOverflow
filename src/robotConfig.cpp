@@ -36,7 +36,7 @@ vex::digital_out plowPiston(brain.ThreeWirePort.B);
 //// Sensors ////
 vex::inertial inertial(vex::PORT12);
 
-vex::gps gpsSensor(vex::PORT13, 0, 0, vex::distanceUnits::in, 0);
+vex::gps gpsSensor(vex::PORT13, 7.5, 3.6, vex::distanceUnits::in, -0.7);
 vex::rotation armRotationSensor(vex::PORT4, true);
 
 } // namespace config

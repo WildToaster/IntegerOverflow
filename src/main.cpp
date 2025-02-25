@@ -267,7 +267,7 @@ void autonomous() {
     }
 
     printf("%d\n", nav::syncToGPS());
-    drive.toPoint(-12, 24);
+    drive.toPoint(48, -48, false, 40);
     return;
 
     switch (selector::selectedRoute) {
@@ -297,8 +297,8 @@ void autonomous() {
 
 void userControl() {
     while (true) {
-        nav::Location loc = nav::getLocation();
-        printf("%f %f %f\n", loc.x, loc.y, loc.heading);
+        // nav::Location loc = nav::getLocation();
+        printf("%f %f %f\n", gpsSensor.xPosition(vex::inches), gpsSensor.yPosition(vex::inches), gpsSensor.heading());
         /// Drive Code ///
         int controllerForward = controller.Axis3.position();
         int controllerTurn = controller.Axis4.position() * 0.85;
