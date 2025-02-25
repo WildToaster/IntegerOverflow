@@ -96,7 +96,7 @@ Location getLocation() {
 
     float xPosSum = odomX + odomOffset.x;
     float yPosSum = odomY + odomOffset.y;
-    float headingSum = (odomHeading * 180 / M_PI + odomOffset.heading) + config::inertial.rotation(vex::rotationUnits::deg);
+    float headingSum = (odomHeading * 180 / M_PI + odomOffset.heading) + config::inertial.heading(vex::rotationUnits::deg);
     bool usingGps = config::gpsSensor.quality() >= 95;
 
     if (usingGps) {
@@ -149,7 +149,7 @@ bool syncToGPS() {
     config::leftBaseMotors.resetPosition();
     config::rightBaseMotors.resetPosition();
 
-    config::inertial.setRotation(gpsLoc.heading, vex::rotationUnits::deg);
+    config::inertial.setHeading(gpsLoc.heading, vex::rotationUnits::deg);
     return true;
 }
 

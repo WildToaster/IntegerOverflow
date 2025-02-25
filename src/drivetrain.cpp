@@ -234,24 +234,99 @@ void Drivetrain::turnAngle(float degrees, float maxSpeed) {
     pid::graphPID(brain, errorHistory, outputHistory, degrees, degrees - (inertial.rotation(vex::rotationUnits::deg) - startAngle), usedTime);
 }
 
-void Drivetrain::toPoint(float x, float y, bool reverse, float maxSpeed) {
-    nav::Location loc = nav::getLocation();
+float getDistanceBetweenPoints(float startX, float startY, float endX, float endY, float angle) {
+    float offsetX = startX - endX;
+    float offsetY = startY - endY;
 
-    float turn = (atan2((x - loc.x), (y - loc.y)) * 180.0 / 3.141592653589793) - loc.heading;
-    float distance = sqrt((x - loc.x) * (x - loc.x) + (y - loc.y) * (y - loc.y));
+    // printf("%.2f %0.1f %0.1f %0.2f %0.2f\n", angleToTarget * 180 / M_PI, offsetX, offsetY, std::cos(angleToTarget), std::sin(angleToTarget));
+    return offsetY * std::cos(angle) + offsetY * std::sin(angle);
+}
 
-    if (reverse) {
-        distance *= -1;
-        turn += 180;
+void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSpeed) {
+    pid::PIDGains xyPID(16, 0.015, 1800, 12, -1, 0, 0);
+    pid::PIDGains angularPID(2, 0.55, 160, 24, -1, 0, 0);
+    const float lookaheadDist = 12; // Aim for 6 inches past the target
+    const float turnPriority = 50;
+    const float slewRate = 0.05;
+    float slew = 0;
+
+    float stalledTimeout = 300;
+    const float minimumOutput = 15;
+
+    float inRangeTimeout = 200;
+    const float minimumDistance = 2;
+
+    // nav::Location startLocation = nav::getLocation();
+    nav::Location startLocation(0, 0, 0);
+
+    float initialTargetAngle = atan2(targetY - startLocation.y, targetX - startLocation.x);
+    float aimX = targetX + lookaheadDist * std::cos(initialTargetAngle);
+    float aimY = targetY + lookaheadDist * std::sin(initialTargetAngle);
+
+    // https://www.desmos.com/calculator/i8fojr2n08
+    float cos = std::cos(-initialTargetAngle);
+    float sin = std::sin(-initialTargetAngle);
+    const float targetDistance = (targetX - startLocation.x) * cos - (targetY - startLocation.y) * sin + startLocation.x;
+
+    pid::PIDPacket xyPacket, angularPacket;
+
+    while (stalledTimeout > 0 && inRangeTimeout > 0) {
+        printf("\n");
+        nav::Location currentLocation(0, 0, 0);
+        int32_t currentTime = brain.Timer.system();
+        int32_t deltaTime = currentTime - xyPacket.lastTime;
+
+        float currentDistance = (currentLocation.x - startLocation.x) * cos - (currentLocation.y - startLocation.y) * sin + startLocation.x;
+        float distanceRemaining = targetDistance - currentDistance;
+
+        printf("%f %f\n", sin, cos);
+        printf("%0.3f %0.3f %0.3f\n", initialTargetAngle * 180 / M_PI, targetDistance, currentDistance);
+
+        float targetHeading = std::atan2(aimX - currentLocation.x, aimY - currentLocation.y) * 180 / M_PI;
+        float headingOffset = targetHeading - currentLocation.heading;
+        if (std::abs(headingOffset) > 180) headingOffset = 360 - std::abs(headingOffset);
+
+        printf("Errors %0.3f %0.3f %0.3f\n", distanceRemaining, targetHeading - currentLocation.heading, headingOffset);
+        continue;
+
+        xyPacket = pid::pidStep(distanceRemaining, currentTime, xyPacket, xyPID);
+        angularPacket = pid::pidStep(headingOffset, currentTime, angularPacket, angularPID);
+
+        float xySpeed = xyPacket.output;
+        float angularSpeed = angularPacket.output;
+
+        xySpeed *= std::fmin(1 / (xySpeed * std::abs(headingOffset)), 1);
+        
+        float leftSpeed = xySpeed + angularSpeed;
+        float rightSpeed = xySpeed - angularSpeed;
+
+        if (std::fmax(std::abs(leftSpeed), std::abs(rightSpeed)) < minimumOutput) {
+            stalledTimeout -= deltaTime;
+        }
+
+        leftSpeed *= slew;
+        rightSpeed *= slew;
+
+        float largestSpeed = std::fmax(std::fabs(leftSpeed), std::fabs(rightSpeed));
+        if (largestSpeed > maxSpeed) {
+            float correction = maxSpeed / largestSpeed;
+            leftSpeed *= correction;
+            rightSpeed *= correction;
+        }
+
+        leftMotors.spin(vex::directionType::fwd, leftSpeed * 120, vex::voltageUnits::mV);
+        rightMotors.spin(vex::directionType::fwd, rightSpeed * 120, vex::voltageUnits::mV);
+
+        if (distanceRemaining < minimumDistance) {
+            inRangeTimeout -= deltaTime;
+        }
+
+        slew = std::fmin(slew + slewRate, 1);
+
+        vex::this_thread::sleep_for(5);
     }
 
-    printf("Raw turn %f\n", turn);
-    if (std::abs(turn) > 180) turn = 360 - std::abs(turn);
-    
-    printf("Current Location %f %f %f\n", loc.x, loc.y, loc.heading);
-    printf("Distances %f %f\n", turn, distance);
-    turnAngle(turn, maxSpeed);
-    moveDistance(distance, maxSpeed);
+    printf("%f %f %f\n", initialTargetAngle * 180 / M_PI, aimX, aimY);
 }
 
 nav::Location rotatePoint(float x, float y, float degrees) {

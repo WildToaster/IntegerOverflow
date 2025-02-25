@@ -267,6 +267,8 @@ void autonomous() {
     }
 
     printf("%d\n", nav::syncToGPS());
+    drive.toPoint(-12, 24);
+    return;
 
     switch (selector::selectedRoute) {
         case selector::AutonRoute::RED_LEFT:
