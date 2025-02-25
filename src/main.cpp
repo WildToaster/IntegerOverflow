@@ -267,7 +267,7 @@ void autonomous() {
     }
 
     printf("%d\n", nav::syncToGPS());
-    drive.toPoint(48, -48, false, 40);
+    drive.toPoint(48, -48, false, 70);
     return;
 
     switch (selector::selectedRoute) {

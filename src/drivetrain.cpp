@@ -245,11 +245,11 @@ float getDistanceBetweenPoints(float startX, float startY, float endX, float end
 void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSpeed) {
     // pid::PIDGains xyPID(16, 0.015, 1800, 12, -1, 0, 0);
     // pid::PIDGains angularPID(2, 0.55, 160, 24, -1, 0, 0);
-    pid::PIDGains xyPID(1, 0, 0, 12, -1, 0, 0);
-    pid::PIDGains angularPID(1, 0, 0, 24, -1, 0, 0);
+    pid::PIDGains xyPID(3, 0, 0, 12, -1, 0, 0);
+    pid::PIDGains angularPID(2, 0, 0, 24, -1, 0, 0);
 
     const float lookaheadDist = 12; // Aim for 6 inches past the target
-    const float turnPriority = 50;
+    const float turnPriority = 0.8;
     const float slewRate = 0.05;
     float slew = 0;
 
@@ -296,6 +296,7 @@ void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSp
         float xySpeed = xyPacket.output;
         float angularSpeed = angularPacket.output;
 
+        printf("initial %f %f\n", xySpeed);
         xySpeed *= std::fmin(1 / (turnPriority * std::abs(headingOffset)), 1);
         
         float leftSpeed = xySpeed + angularSpeed;
@@ -315,8 +316,8 @@ void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSp
             rightSpeed *= correction;
         }
 
-        // leftMotors.spin(vex::directionType::fwd, leftSpeed * 120, vex::voltageUnits::mV);
-        // rightMotors.spin(vex::directionType::fwd, rightSpeed * 120, vex::voltageUnits::mV);
+        leftMotors.spin(vex::directionType::fwd, leftSpeed * 120, vex::voltageUnits::mV);
+        rightMotors.spin(vex::directionType::fwd, rightSpeed * 120, vex::voltageUnits::mV);
 
         if (distanceRemaining < minimumDistance) {
             inRangeTimeout -= deltaTime;
@@ -328,6 +329,9 @@ void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSp
 
         vex::this_thread::sleep_for(5);
     }
+
+    leftMotors.stop();
+    rightMotors.stop();
 
     printf("%f %f %f\n", initialTargetAngle * 180 / M_PI, aimX, aimY);
 }
