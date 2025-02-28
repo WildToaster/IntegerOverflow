@@ -40,5 +40,7 @@ extern vex::digital_out plowPiston;
 extern vex::inertial inertial;
 extern vex::gps gpsSensor;
 extern vex::rotation armRotationSensor;
+extern vex::optical ringColorSensor;
+extern vex::limit ringExitSensor;
 
 } // namespace config

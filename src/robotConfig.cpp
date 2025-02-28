@@ -38,5 +38,7 @@ vex::inertial inertial(vex::PORT12);
 
 vex::gps gpsSensor(vex::PORT13, 7.5, 3.6, vex::distanceUnits::in, -0.7);
 vex::rotation armRotationSensor(vex::PORT4, true);
+vex::optical ringColorSensor(vex::PORT5);
+vex::limit ringExitSensor(brain.ThreeWirePort.D);
 
 } // namespace config

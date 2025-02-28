@@ -52,6 +52,10 @@ Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25,
 float armPosition = 0;
 bool armManagerActive = true;
 
+bool colorSorterEnable = false;
+bool colorSorterOverride = false;
+int heldRing = 0; // 0 is nothing, -1 is blue, 1 is red
+
 void setClamp(bool clamping) {
     leftClampPiston.set(clamping);
     rightClampPiston.set(clamping);
@@ -85,6 +89,34 @@ void armPositionManager() {
     }
 }
 
+void onRingCollected() {
+    vex::this_thread::sleep_for(70);
+    const float redThreshold = 50;
+    const float blueThreshold = 50;
+    double hue = ringColorSensor.hue();
+
+    printf("\nRing Retected %f\n", hue);
+    if (hue < redThreshold) {
+        printf("Detected Red Ring\n");
+        heldRing = 1;
+    } else if (hue > blueThreshold) {
+        printf("Detected blue ring\n");
+        heldRing = -1;
+    }
+}
+
+void onRingLeaving() {
+    if (colorSorterOverride || !colorSorterEnable || !((heldRing == -1 && (selector::selectedRoute == selector::AutonRoute::RED_LEFT || selector::selectedRoute == selector::AutonRoute::RED_RIGHT)) ||
+    (heldRing == 1 && (selector::selectedRoute == selector::AutonRoute::BLUE_LEFT || selector::selectedRoute == selector::AutonRoute::BLUE_RIGHT || selector::selectedRoute == selector::AutonRoute::SKILLS)))) return;
+
+    colorSorterOverride = true;
+    collectionMotor.stop();
+
+    conveyerMotor.spin(vex::directionType::fwd, -100, vex::velocityUnits::pct);
+    vex::this_thread::sleep_for(400);
+    conveyerMotor.stop(vex::brakeType::coast);
+    colorSorterOverride = false;
+}
 
 //// Auton Routes ////
 void redLeft() {
@@ -152,33 +184,35 @@ void blueLeft() {
 }
 
 void blueRight() {
-    collectionMotor.spin(vex::directionType::rev, 100, vex::velocityUnits::pct);
-    plowPiston.set(true);
-    drive.moveDistance(40, 100);
-    collectionMotor.stop();
-    collectionMotor.stop();
-    vex::this_thread::sleep_for(200);
-    drive.turnAngle(180 + 180 + 55);
-    drive.moveDistance(-28);
-    setClamp(true);
-    intake(100);
-    // drive.moveDistance(-20, 100);
-    // drive.moveDistance(-5.5, 70);
+    //// The Atlas Defense ////
+    // collectionMotor.spin(vex::directionType::rev, 100, vex::velocityUnits::pct);
+    // plowPiston.set(true);
+    // drive.moveDistance(40, 100);
+    // collectionMotor.stop();
+    // collectionMotor.stop();
+    // vex::this_thread::sleep_for(200);
+    // drive.turnAngle(180 + 180 + 55);
+    // drive.moveDistance(-28);
     // setClamp(true);
-    // drive.turnAngle(-60);
     // intake(100);
-    // drive.moveDistance(27, 80);
-    // vex::this_thread::sleep_for(500);
-    // drive.turnAngle(-90);
-    // drive.moveDistance(17.5, 80);
-    // drive.moveDistance(-5, 100);
-    // drive.turnAngle(-45);
-    // drive.moveDistance(8, 100);
-    // vex::this_thread::sleep_for(800);
-    // armPosition = 153;
-    // drive.moveDistance(-8, 100);
-    // drive.turnAngle(-40);
-    // drive.moveDistance(48, 70);
+
+    drive.moveDistance(-20, 100);
+    drive.moveDistance(-5.5, 70);
+    setClamp(true);
+    drive.turnAngle(-60);
+    intake(100);
+    drive.moveDistance(27, 80);
+    vex::this_thread::sleep_for(500);
+    drive.turnAngle(-90);
+    drive.moveDistance(17.5, 80);
+    drive.moveDistance(-5, 100);
+    drive.turnAngle(-45);
+    drive.moveDistance(8, 100);
+    vex::this_thread::sleep_for(800);
+    armPosition = 153;
+    drive.moveDistance(-8, 100);
+    drive.turnAngle(-40);
+    drive.moveDistance(48, 70);
 }
 
 void skills() {
@@ -266,10 +300,6 @@ void autonomous() {
         vex::this_thread::sleep_for(20);
     }
 
-    printf("%d\n", nav::syncToGPS());
-    drive.toPoint(48, -48, false, 70);
-    return;
-
     switch (selector::selectedRoute) {
         case selector::AutonRoute::RED_LEFT:
             redLeft();
@@ -296,9 +326,14 @@ void autonomous() {
 }
 
 void userControl() {
+    controller.ButtonX.pressed([](){
+        colorSorterEnable = !colorSorterEnable;
+        controller.rumble(".");
+    });
+
     while (true) {
         // nav::Location loc = nav::getLocation();
-        printf("%f %f %f\n", gpsSensor.xPosition(vex::inches), gpsSensor.yPosition(vex::inches), gpsSensor.heading());
+        // printf("%f %f %f\n", gpsSensor.xPosition(vex::inches), gpsSensor.yPosition(vex::inches), gpsSensor.heading());
         /// Drive Code ///
         int controllerForward = controller.Axis3.position();
         int controllerTurn = controller.Axis4.position() * 0.85;
@@ -318,15 +353,17 @@ void userControl() {
 
         //// Aux Modes ////
         // Intake
-        if (controller.ButtonR1.pressing()) {
-            collectionMotor.spin(vex::directionType::fwd, 100, vex::velocityUnits::pct);
-            conveyerMotor.spin(vex::directionType::fwd, 100, vex::velocityUnits::pct);
-        } else if (controller.ButtonR2.pressing()) {
-            collectionMotor.spin(vex::directionType::fwd, -100, vex::velocityUnits::pct);
-            conveyerMotor.spin(vex::directionType::fwd, -100, vex::velocityUnits::pct);
-        } else {
-            collectionMotor.stop();
-            conveyerMotor.stop();
+        if (!colorSorterOverride) {
+            if (controller.ButtonR1.pressing()) {
+                collectionMotor.spin(vex::directionType::fwd, 100, vex::velocityUnits::pct);
+                conveyerMotor.spin(vex::directionType::fwd, 100, vex::velocityUnits::pct);
+            } else if (controller.ButtonR2.pressing()) {
+                collectionMotor.spin(vex::directionType::fwd, -100, vex::velocityUnits::pct);
+                conveyerMotor.spin(vex::directionType::fwd, -100, vex::velocityUnits::pct);
+            } else {
+                collectionMotor.stop();
+                conveyerMotor.stop();
+            }
         }
 
         // Clamp
@@ -351,7 +388,7 @@ void userControl() {
         if (controller.ButtonUp.pressing()) {
             armPosition = 153;
             intake(-100);
-            vex::this_thread::sleep_for(300);
+            vex::this_thread::sleep_for(100);
             intake(0);
         }
 
@@ -381,6 +418,10 @@ int main() {
     armPositionThread.detach();
 
     nav::start();
+
+    ringColorSensor.setLightPower(100);
+    ringColorSensor.objectDetected(onRingCollected);
+    ringExitSensor.pressed(onRingLeaving);
 
     // Prevent main from exiting with an infinite loop.
     while (true) {
