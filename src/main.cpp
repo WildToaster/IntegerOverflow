@@ -106,8 +106,8 @@ void onRingCollected() {
 }
 
 void onRingLeaving() {
-    if (colorSorterOverride || !colorSorterEnable || !((heldRing == -1 && (selector::selectedRoute == selector::AutonRoute::RED_LEFT || selector::selectedRoute == selector::AutonRoute::RED_RIGHT)) ||
-    (heldRing == 1 && (selector::selectedRoute == selector::AutonRoute::BLUE_LEFT || selector::selectedRoute == selector::AutonRoute::BLUE_RIGHT || selector::selectedRoute == selector::AutonRoute::SKILLS)))) return;
+    if (colorSorterOverride || !colorSorterEnable || !((heldRing == -1 && (selector::selectedRoute == selector::AutonRoute::RED_LEFT || selector::selectedRoute == selector::AutonRoute::RED_RIGHT || selector::selectedRoute == selector::AutonRoute::SKILLS)) ||
+    (heldRing == 1 && (selector::selectedRoute == selector::AutonRoute::BLUE_LEFT || selector::selectedRoute == selector::AutonRoute::BLUE_RIGHT)))) return;
 
     colorSorterOverride = true;
     collectionMotor.stop();
