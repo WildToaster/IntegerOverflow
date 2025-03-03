@@ -332,8 +332,8 @@ void userControl() {
     });
 
     while (true) {
-        // nav::Location loc = nav::getLocation();
-        // printf("%f %f %f\n", gpsSensor.xPosition(vex::inches), gpsSensor.yPosition(vex::inches), gpsSensor.heading());
+        nav::Location loc = nav::getLocation();
+        printf("%f %f %f\n", loc.x, loc.y, loc.heading);
         /// Drive Code ///
         int controllerForward = controller.Axis3.position();
         int controllerTurn = controller.Axis4.position() * 0.85;

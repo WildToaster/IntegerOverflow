@@ -20,7 +20,7 @@ Location getGPSPacket() {
     return Location(
         config::gpsSensor.xPosition(vex::distanceUnits::in),
         config::gpsSensor.yPosition(vex::distanceUnits::in),
-        config::gpsSensor.heading());
+        config::gpsSensor.rotation());
 }
 
 float getAverageLeftOdomWheelPosition() {
@@ -37,9 +37,9 @@ float getAverageRightOdomWheelPosition() {
 
 // See https://wiki.purduesigbots.com/software/odometry
 void odometryLoop() {
-    const float wheelCircumference = 3.25 * M_PI * 1.01384125992;
+    const float wheelCircumference = 3.25 * M_PI * 1.0038552651359253499222395023328;
     const float gearing = 36.0 / 48.0;
-    const float wheelbase = 12.75 * 0.98720303194;
+    const float wheelbase = 12.75 * 0.98408982033690525572916666666667;
 
     config::leftBaseMotors.resetPosition();
     config::rightBaseMotors.resetPosition();
@@ -96,8 +96,8 @@ Location getLocation() {
 
     float xPosSum = odomX + odomOffset.x;
     float yPosSum = odomY + odomOffset.y;
-    float headingSum = (odomHeading * 180 / M_PI + odomOffset.heading) + config::inertial.heading(vex::rotationUnits::deg);
-    bool usingGps = config::gpsSensor.quality() >= 95;
+    float headingSum = (odomHeading * 180 / M_PI + odomOffset.heading);// + config::inertial.rotation(vex::rotationUnits::deg);
+    bool usingGps = config::gpsSensor.quality() >= 9500;
 
     if (usingGps) {
         Location gpsLocation = getGPSPacket();
@@ -149,7 +149,7 @@ bool syncToGPS() {
     config::leftBaseMotors.resetPosition();
     config::rightBaseMotors.resetPosition();
 
-    config::inertial.setHeading(gpsLoc.heading, vex::rotationUnits::deg);
+    config::inertial.setRotation(gpsLoc.heading, vex::rotationUnits::deg);
     return true;
 }
 
