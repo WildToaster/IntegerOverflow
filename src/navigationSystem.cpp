@@ -136,6 +136,7 @@ Location getAverageLocation(int iterations) {
 }
 
 bool syncToGPS() {
+    printf("Sync Quality: %f\n", config::gpsSensor.quality());
     if (config::gpsSensor.quality() < 95) return false;
     Location gpsLoc = getGPSPacket();
 

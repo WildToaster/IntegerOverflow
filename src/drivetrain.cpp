@@ -246,17 +246,17 @@ void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSp
     // pid::PIDGains xyPID(16, 0.015, 1800, 12, -1, 0, 0);
     // pid::PIDGains angularPID(2, 0.55, 160, 24, -1, 0, 0);
     pid::PIDGains xyPID(3, 0, 0, 12, -1, 0, 0);
-    pid::PIDGains angularPID(2, 0, 0, 24, -1, 0, 0);
+    pid::PIDGains angularPID(2.1, 0.2, 200, 24, -1, 0, 0);
 
     const float lookaheadDist = 12; // Aim for 6 inches past the target
     const float turnPriority = 0.8;
     const float slewRate = 0.05;
     float slew = 0;
 
-    float stalledTimeout = 300;
+    float stalledTimeout = 3000000;
     const float minimumOutput = 15;
 
-    float inRangeTimeout = 200;
+    float inRangeTimeout = 2000000;
     const float minimumDistance = 2;
 
     nav::Location startLocation = nav::getLocation();
@@ -288,15 +288,16 @@ void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSp
         float headingOffset = targetHeading - currentLocation.heading;
         if (std::abs(headingOffset) > 180) headingOffset = 360 - std::abs(headingOffset);
 
-        printf("Errors %0.3f %0.3f %0.3f\n", distanceRemaining, targetHeading - currentLocation.heading, headingOffset);
+        printf("Errors %0.3f %0.3f %0.3f\n", distanceRemaining, targetHeading, headingOffset);
 
         xyPacket = pid::pidStep(distanceRemaining, currentTime, xyPacket, xyPID);
         angularPacket = pid::pidStep(headingOffset, currentTime, angularPacket, angularPID);
 
         float xySpeed = xyPacket.output;
+        xySpeed = 0;
         float angularSpeed = angularPacket.output;
 
-        printf("initial %f %f\n", xySpeed);
+        printf("initial %f %f\n", xySpeed, angularSpeed);
         xySpeed *= std::fmin(1 / (turnPriority * std::abs(headingOffset)), 1);
         
         float leftSpeed = xySpeed + angularSpeed;

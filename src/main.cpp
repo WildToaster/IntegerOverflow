@@ -300,6 +300,16 @@ void autonomous() {
         vex::this_thread::sleep_for(20);
     }
 
+    bool synced = nav::syncToGPS();
+    if (!synced) {
+        controller.rumble("-");
+        return;
+    }
+    nav::Location loc = nav::getLocation();
+    printf("%f %f %f\n", loc.x, loc.y, loc.heading);
+    drive.toPoint(48, -48);
+    return;
+
     switch (selector::selectedRoute) {
         case selector::AutonRoute::RED_LEFT:
             redLeft();
@@ -409,6 +419,7 @@ int main() {
     drive.setBrakeMode(vex::brakeType::coast);
     selector::start(brain);
     inertial.calibrate();
+    gpsSensor.calibrate();
     conveyerMotor.setStopping(vex::brakeType::coast);
 
     armMotor.setStopping(vex::brakeType::hold);
