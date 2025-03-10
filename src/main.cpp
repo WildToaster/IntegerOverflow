@@ -52,7 +52,7 @@ Drivetrain drive(brain, leftBaseMotors, rightBaseMotors, config::inertial, 3.25,
 float armPosition = 0;
 bool armManagerActive = true;
 
-bool colorSorterEnable = false;
+bool colorSorterEnable = true;
 bool colorSorterOverride = false;
 int heldRing = 0; // 0 is nothing, -1 is blue, 1 is red
 
@@ -75,10 +75,7 @@ void armPositionManager() {
     while (true) {
         armPosition = std::min(armMax, std::max(armMin, armPosition));
         if (competition.isEnabled()) {
-            // Get the sensor position in a range of 0 to 360
-            float sensorPosition = std::fmod(armRotationSensor.position(vex::rotationUnits::deg), 360);
-            // Convert sensor from 0 to 360, to -180 to 180
-            sensorPosition = sensorPosition - (360 * std::floor(std::abs(sensorPosition / 180)));
+            float sensorPosition = armRotationSensor.position(vex::rotationUnits::deg);
             float currentError = armPosition - sensorPosition;
             armPacket = pid::pidStep(currentError, brain.Timer.system(), armPacket, armGains);
 
@@ -140,25 +137,26 @@ void redLeft() {
 }
 
 void redRight() {
-    drive.moveDistance(-27, 100);
+    drive.moveDistance(-25, 100);
     setClamp(true);
-    drive.turnAngle(-70);
+    drive.turnAngle(-65);
     intake(90);
     //vex::this_thread::sleep_for(200);
-    drive.moveDistance(27, 90);
-    // vex::this_thread::sleep_for(400);
-    // drive.turnAngle(-80);
-    // vex::this_thread::sleep_for(200);
-    // setClamp(false);
-    // intake(0);
-    // drive.moveDistance(7, 100); // 11.7
-    // plowPiston = (true);
-    // vex::this_thread::sleep_for(500);
-    // armPosition = 153;
-    // drive.moveDistance(-12, 70);
-    // plowPiston = (false);
-    // drive.turnAngle(-70);
-    // drive.moveDistance(32.5, 90);
+    drive.moveDistance(25, 90);
+    vex::this_thread::sleep_for(400);
+    drive.turnAngle(-80);
+    vex::this_thread::sleep_for(200);
+    drive.moveDistance(-18);
+    setClamp(false);
+    intake(0);
+    drive.moveDistance(25);
+    plowPiston = (true);
+    vex::this_thread::sleep_for(500);
+    armPosition = 153;
+    drive.moveDistance(-19, 45);
+    plowPiston = (false);
+    drive.turnAngle(-70);
+    drive.moveDistance(32.5, 90);
 }
 
 void blueLeft() {
@@ -300,17 +298,6 @@ void autonomous() {
         vex::this_thread::sleep_for(20);
     }
 
-    // bool synced = nav::syncToGPS();
-    // if (!synced) {
-    //     controller.rumble("-");
-    //     return;
-    // }
-    // nav::Location loc = nav::getLocation();
-    // printf("%f %f %f\n", loc.x, loc.y, loc.heading);
-    // nav::gpsEnabled = false;
-    // drive.toPoint(24, -48, false, 40);
-    // return;
-
     switch (selector::selectedRoute) {
         case selector::AutonRoute::RED_LEFT:
             redLeft();
@@ -337,6 +324,7 @@ void autonomous() {
 }
 
 void userControl() {
+    colorSorterEnable = false;
     controller.ButtonX.pressed([](){
         colorSorterEnable = !colorSorterEnable;
         controller.rumble(".");
@@ -428,6 +416,8 @@ int main() {
     armMotor.setStopping(vex::brakeType::hold);
     armMotor.setPosition(armRotationSensor.position(vex::rotationUnits::deg), vex::rotationUnits::deg);
 
+    armRotationSensor.resetPosition();
+
     vex::thread armPositionThread(armPositionManager);
     armPositionThread.detach();
 
@@ -436,6 +426,7 @@ int main() {
     ringColorSensor.setLightPower(100);
     ringColorSensor.objectDetected(onRingCollected);
     ringExitSensor.pressed(onRingLeaving);
+    
 
     // Prevent main from exiting with an infinite loop.
     while (true) {
