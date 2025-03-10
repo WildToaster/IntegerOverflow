@@ -113,6 +113,7 @@ void onRingLeaving() {
     vex::this_thread::sleep_for(400);
     conveyerMotor.stop(vex::brakeType::coast);
     colorSorterOverride = false;
+    intake(90);
 }
 
 //// Auton Routes ////
@@ -201,7 +202,7 @@ void blueRight() {
     drive.moveDistance(27, 80);
     vex::this_thread::sleep_for(500);
     drive.turnAngle(-90);
-    drive.moveDistance(17.5, 80);
+    drive.moveDistance(14, 80);
     drive.moveDistance(-5, 100);
     drive.turnAngle(-45);
     drive.moveDistance(8, 100);
