@@ -141,7 +141,6 @@ void redRight() {
     setClamp(true);
     drive.turnAngle(-65);
     intake(90);
-    //vex::this_thread::sleep_for(200);
     drive.moveDistance(25, 90);
     vex::this_thread::sleep_for(400);
     drive.turnAngle(-80);
@@ -160,24 +159,24 @@ void redRight() {
 }
 
 void blueLeft() {
-    drive.moveDistance(-27, 100);
+    drive.moveDistance(-25, 100);
     setClamp(true);
-    drive.turnAngle(70);
+    drive.turnAngle(60);
     intake(90);
-    vex::this_thread::sleep_for(200);
-    drive.moveDistance(27, 90);
+    drive.moveDistance(22, 90);
     vex::this_thread::sleep_for(400);
-    drive.turnAngle(110);
+    drive.turnAngle(95);
     vex::this_thread::sleep_for(200);
+    drive.moveDistance(-18);
     setClamp(false);
     intake(0);
-    drive.moveDistance(8.5, 100); // 11.7
+    drive.moveDistance(25);
     plowPiston = (true);
     vex::this_thread::sleep_for(500);
-    // armPosition = 153;
-    drive.moveDistance(-12, 70);
+    armPosition = 153;
+    drive.moveDistance(-19, 45);
     plowPiston = (false);
-    drive.turnAngle(40);
+    drive.turnAngle(70);
     drive.moveDistance(32.5, 90);
 }
 
