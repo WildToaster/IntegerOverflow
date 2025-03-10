@@ -16,6 +16,10 @@ Location odomOffset(0, 0, 0);
 
 vex::thread odomThread;
 
+bool gpsEnabled = true;
+bool inertialEnabled = false;
+bool odomEnabled = true;
+
 Location getGPSPacket() {
     return Location(
         config::gpsSensor.xPosition(vex::distanceUnits::in),
@@ -91,28 +95,49 @@ void start() {
     odomThread = vex::thread(odometryLoop);
 }
 
+Location rotatePoint(float x, float y, float degrees) {
+    float radians = degrees * M_PI / 180;
+    float c = std::cos(radians);
+    float s = std::sin(radians);
+
+    nav::Location out;
+    out.x = x * c - y * s;
+    out.y = x * s + y * c;
+    return out;
+}
+
 Location getLocation() {
     Location currentLocation;
 
-    float xPosSum = odomX + odomOffset.x;
-    float yPosSum = odomY + odomOffset.y;
-    float headingSum = (odomHeading * 180 / M_PI + odomOffset.heading) + config::inertial.rotation(vex::rotationUnits::deg);
-    bool usingGps = config::gpsSensor.quality() >= 95;
+    Location odomPos = rotatePoint(odomX, odomY, -odomOffset.heading);
+    float xPosSum = 0;
+    float yPosSum = 0;
+    float headingSum = 0;
 
-    if (usingGps) {
+    bool useGPS = usingGPS();
+
+    if (odomEnabled) {
+        xPosSum += odomPos.x + odomOffset.x;
+        yPosSum += odomPos.y + odomOffset.y;    
+        headingSum += odomHeading * 180 / M_PI + odomOffset.heading;
+    }
+
+    if (inertialEnabled) {
+        headingSum += config::inertial.rotation(vex::rotationUnits::deg);
+    }
+
+    if (useGPS) {
         Location gpsLocation = getGPSPacket();
+
         xPosSum += gpsLocation.x;
         yPosSum += gpsLocation.y;
         headingSum += gpsLocation.heading;
-
-        currentLocation.x = xPosSum / 2;
-        currentLocation.y = yPosSum / 2;
-        currentLocation.heading = headingSum / 3;
-    } else {
-        currentLocation.x = xPosSum;
-        currentLocation.y = yPosSum;
-        currentLocation.heading = headingSum;
     }
+
+    int numSources = ((int) odomEnabled) + ((int) inertialEnabled) + ((int) useGPS);
+    currentLocation.x = xPosSum / numSources;
+    currentLocation.y = yPosSum / numSources;
+    currentLocation.heading = headingSum / numSources;
 
     return currentLocation;
 }
@@ -135,9 +160,12 @@ Location getAverageLocation(int iterations) {
     return locationSum;
 }
 
+bool usingGPS() {
+    return config::gpsSensor.quality() >= 95 && gpsEnabled;
+}
+
 bool syncToGPS() {
-    printf("Sync Quality: %f\n", config::gpsSensor.quality());
-    if (config::gpsSensor.quality() < 95) return false;
+    if (!usingGPS()) return false;
     Location gpsLoc = getGPSPacket();
 
     odomOffset = gpsLoc;
@@ -151,6 +179,22 @@ bool syncToGPS() {
     config::rightBaseMotors.resetPosition();
 
     config::inertial.setRotation(gpsLoc.heading, vex::rotationUnits::deg);
+    return true;
+}
+
+bool syncToPos(float x, float y, float heading) {
+    if (usingGPS()) return false;
+    odomOffset = Location(x, y, heading);
+    odomX = 0;
+    odomY = 0;
+    odomHeading = 0;
+    lastOdomHeading = 0;
+    lastOdomLeftDist = 0;
+    lastOdomRightDist = 0;
+    config::leftBaseMotors.resetPosition();
+    config::rightBaseMotors.resetPosition();
+
+    config::inertial.setRotation(heading, vex::rotationUnits::deg);
     return true;
 }
 

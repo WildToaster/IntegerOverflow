@@ -245,11 +245,15 @@ float getDistanceBetweenPoints(float startX, float startY, float endX, float end
 void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSpeed) {
     // pid::PIDGains xyPID(16, 0.015, 1800, 12, -1, 0, 0);
     // pid::PIDGains angularPID(2, 0.55, 160, 24, -1, 0, 0);
-    pid::PIDGains xyPID(3, 0, 0, 12, -1, 0, 0);
-    pid::PIDGains angularPID(2.1, 0.2, 200, 24, -1, 0, 0);
+    pid::PIDGains xyPID(7, 0.15, 800, 24, -1, 0, 0);
+    pid::PIDGains angularPID(1.75, 2, 300, 18, -1, 0, 0);
 
-    const float lookaheadDist = 12; // Aim for 6 inches past the target
-    const float turnPriority = 0.8;
+    const float lookaheadDist = 48; // Aim for 24 inches past the target
+    
+    // https://www.desmos.com/calculator/nr8xrruhid
+    const float priorityStart = 6;
+    const float priorityEnd = 1;
+    const float slope = 1 / (priorityEnd - priorityStart);
     const float slewRate = 0.05;
     float slew = 0;
 
@@ -261,9 +265,9 @@ void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSp
 
     nav::Location startLocation = nav::getLocation();
 
-    float initialTargetAngle = atan2(targetY - startLocation.y, targetX - startLocation.x);
-    float aimX = targetX + lookaheadDist * std::cos(initialTargetAngle);
-    float aimY = targetY + lookaheadDist * std::sin(initialTargetAngle);
+    const float initialTargetAngle = atan2(targetY - startLocation.y, targetX - startLocation.x);
+    const float aimX = targetX + lookaheadDist * std::cos(initialTargetAngle);
+    const float aimY = targetY + lookaheadDist * std::sin(initialTargetAngle);
 
     // https://www.desmos.com/calculator/i8fojr2n08
     float cos = std::cos(-initialTargetAngle);
@@ -288,23 +292,30 @@ void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSp
         float headingOffset = targetHeading - currentLocation.heading;
         if (std::abs(headingOffset) > 180) headingOffset = 360 - std::abs(headingOffset);
 
-        printf("Errors %0.3f %0.3f %0.3f\n", distanceRemaining, targetHeading, headingOffset);
+        distanceRemaining = filters::lowPass(distanceRemaining, xyPacket.lastError);
+        headingOffset = filters::lowPass(headingOffset, angularPacket.lastError);
+        
+        printf("Current Location (%f, %f, %f)\n", currentLocation.x, currentLocation.y, currentLocation.heading);
+        printf("onGPS %d\n", nav::usingGPS());
+        printf("aim %f %f %f %f\n", aimX, aimY, currentLocation.x, currentLocation.y);
+        printf("Errors D %0.3f H %0.3f %0.3f\n", distanceRemaining, targetHeading, headingOffset);
 
         xyPacket = pid::pidStep(distanceRemaining, currentTime, xyPacket, xyPID);
         angularPacket = pid::pidStep(headingOffset, currentTime, angularPacket, angularPID);
 
         float xySpeed = xyPacket.output;
-        xySpeed = 0;
+        // xySpeed = 0;
         float angularSpeed = angularPacket.output;
 
         printf("initial %f %f\n", xySpeed, angularSpeed);
-        xySpeed *= std::fmin(1 / (turnPriority * std::abs(headingOffset)), 1);
+        xySpeed *= std::fmin(std::fmax(slope * std::abs(headingOffset) - priorityStart * slope, 0), 1);
         
         float leftSpeed = xySpeed + angularSpeed;
         float rightSpeed = xySpeed - angularSpeed;
 
         if (std::fmax(std::abs(leftSpeed), std::abs(rightSpeed)) < minimumOutput) {
             stalledTimeout -= deltaTime;
+            printf("Stalled\n");
         }
 
         leftSpeed *= slew;
@@ -322,6 +333,7 @@ void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSp
 
         if (distanceRemaining < minimumDistance) {
             inRangeTimeout -= deltaTime;
+            printf("In Range\n");
         }
 
         slew = std::fmin(slew + slewRate, 1);

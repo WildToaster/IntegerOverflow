@@ -300,15 +300,16 @@ void autonomous() {
         vex::this_thread::sleep_for(20);
     }
 
-    bool synced = nav::syncToGPS();
-    if (!synced) {
-        controller.rumble("-");
-        return;
-    }
-    nav::Location loc = nav::getLocation();
-    printf("%f %f %f\n", loc.x, loc.y, loc.heading);
-    drive.toPoint(48, -48);
-    return;
+    // bool synced = nav::syncToGPS();
+    // if (!synced) {
+    //     controller.rumble("-");
+    //     return;
+    // }
+    // nav::Location loc = nav::getLocation();
+    // printf("%f %f %f\n", loc.x, loc.y, loc.heading);
+    // nav::gpsEnabled = false;
+    // drive.toPoint(24, -48, false, 40);
+    // return;
 
     switch (selector::selectedRoute) {
         case selector::AutonRoute::RED_LEFT:
@@ -340,6 +341,8 @@ void userControl() {
         colorSorterEnable = !colorSorterEnable;
         controller.rumble(".");
     });
+
+    nav::syncToPos(0, 0, 90);
 
     while (true) {
         nav::Location loc = nav::getLocation();

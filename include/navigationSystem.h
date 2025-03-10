@@ -17,11 +17,17 @@ struct Location {
 
 };
 
+extern bool gpsEnabled;
+extern bool inertialEnabled;
+extern bool odomEnabled;
+
 extern Location getLocation();
 extern Location getAverageLocation(int iterations = 10);
 
 extern void start();
 
 extern bool syncToGPS();
+extern bool syncToPos(float x, float y, float heading);
+extern bool usingGPS();
 
 }
