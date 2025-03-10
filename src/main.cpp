@@ -123,10 +123,10 @@ void redLeft() {
     setClamp(true);
     drive.turnAngle(60);
     intake(100);
-    drive.moveDistance(29, 80);
+    drive.moveDistance(27, 80);
     vex::this_thread::sleep_for(500);
     drive.turnAngle(90);
-    drive.moveDistance(18.5, 80);
+    drive.moveDistance(14, 80);
     drive.moveDistance(-5, 100);
     drive.turnAngle(45);
     drive.moveDistance(8, 100);
