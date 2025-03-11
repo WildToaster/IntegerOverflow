@@ -33,6 +33,9 @@ vex::digital_out rightClampPiston(brain.ThreeWirePort.A);
 // Plow
 vex::digital_out plowPiston(brain.ThreeWirePort.B);
 
+// Intake Lift
+vex::digital_out intakePiston(brain.ThreeWirePort.G);
+
 //// Sensors ////
 vex::inertial inertial(vex::PORT12);
 

@@ -214,38 +214,14 @@ void blueRight() {
 }
 
 void skills() {
-    /*
-    Put on wall stake (extake too)
-    Forward 28
-    Turn -90
-    Backward 28
-    clamp on
-    turn 180
-    intake on
-    forward 29
-    trn -130 **Estimate**
-    fwd 30
-    bwd 50
-    clm off
-    fwd 30
-    trn 130
-    bwd 80
-    clm on
-    trn 180
-    fwd 30
-    trn 130
-    fwd 30
-    bwd 50
-    clm 0
-    fwd 24
-    itk 0
-    */
-
+    armPosition = 23;
+    vex::this_thread::sleep_for(500);
     intake(70);
     vex::this_thread::sleep_for(750);
     intake(-70);
     vex::this_thread::sleep_for(200);
     intake(0);
+    armPosition = 0;
     drive.moveDistance(14);
     drive.turnAngle(-90);
     drive.moveDistance(-22);
@@ -256,7 +232,7 @@ void skills() {
     vex::this_thread::sleep_for(750);
     drive.moveDistance(19, 20);
     drive.moveDistance(-8,55);
-    drive.turnAngle(225);
+    drive.turnAngle(230);
     drive.moveDistance(42);
     drive.moveDistance(-50, 70);
     drive.moveDistance(-16, 35);
@@ -366,6 +342,9 @@ void userControl() {
                 conveyerMotor.stop();
             }
         }
+
+        // Intake Lift
+        intakePiston.set(controller.ButtonY.pressing());
 
         // Clamp
         if (controller.ButtonL1.pressing()) {

@@ -36,6 +36,9 @@ extern vex::digital_out rightClampPiston;
 // Plow
 extern vex::digital_out plowPiston;
 
+// Intake Lift
+extern vex::digital_out intakePiston;
+
 //// Sensors ////
 extern vex::inertial inertial;
 extern vex::gps gpsSensor;
