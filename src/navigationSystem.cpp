@@ -41,9 +41,12 @@ float getAverageRightOdomWheelPosition() {
 
 // See https://wiki.purduesigbots.com/software/odometry
 void odometryLoop() {
-    const float wheelCircumference = 3.25 * M_PI * 1.0038552651359253499222395023328;
+    const float wheelCircumference = 3.25 * M_PI;
     const float gearing = 36.0 / 48.0;
     const float wheelbase = 12.75 * 0.98408982033690525572916666666667;
+
+    const float leftTrim = 1.00221035463;
+    const float rightTrim = 1.00328399376;
 
     config::leftBaseMotors.resetPosition();
     config::rightBaseMotors.resetPosition();
@@ -54,10 +57,9 @@ void odometryLoop() {
         float rightEncoder = getAverageRightOdomWheelPosition();
 
         // Calculate distance traveled by left and right wheels
-        float totalLeftDist = leftEncoder * gearing / 360 * wheelCircumference;
-        float totalRightDist = rightEncoder * gearing / 360 * wheelCircumference;
+        float totalLeftDist = leftEncoder * gearing / 360 * wheelCircumference * leftTrim;
+        float totalRightDist = rightEncoder * gearing / 360 * wheelCircumference * rightTrim;
 
-        float deltaLeftDist = totalLeftDist - lastOdomLeftDist;
         float deltaRightDist = totalRightDist - lastOdomRightDist;
 
         // Update previous encoder values

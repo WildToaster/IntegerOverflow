@@ -274,6 +274,14 @@ void autonomous() {
         vex::this_thread::sleep_for(20);
     }
 
+    // bool synced = nav::syncToGPS();
+    // if (!synced) {
+    //     controller.rumble("-");
+    //     return;
+    // }
+    // drive.toPoint(48, -48);
+    // return;
+
     switch (selector::selectedRoute) {
         case selector::AutonRoute::RED_LEFT:
             redLeft();
@@ -305,8 +313,6 @@ void userControl() {
         colorSorterEnable = !colorSorterEnable;
         controller.rumble(".");
     });
-
-    nav::syncToPos(0, 0, 90);
 
     while (true) {
         nav::Location loc = nav::getLocation();
@@ -400,6 +406,8 @@ int main() {
     vex::thread armPositionThread(armPositionManager);
     armPositionThread.detach();
 
+    nav::odomEnabled = false;
+    nav::inertialEnabled = false;
     nav::start();
 
     ringColorSensor.setLightPower(100);

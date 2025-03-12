@@ -304,7 +304,7 @@ void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSp
         angularPacket = pid::pidStep(headingOffset, currentTime, angularPacket, angularPID);
 
         float xySpeed = xyPacket.output;
-        // xySpeed = 0;
+        xySpeed = 0;
         float angularSpeed = angularPacket.output;
 
         printf("initial %f %f\n", xySpeed, angularSpeed);
@@ -340,7 +340,7 @@ void Drivetrain::toPoint(float targetX, float targetY, bool reverse, float maxSp
 
         printf("Outputs %.3f %.3f %.3f %.3f\n", xySpeed, angularSpeed, leftSpeed, rightSpeed);
 
-        vex::this_thread::sleep_for(5);
+        vex::this_thread::sleep_for(20);
     }
 
     leftMotors.stop();
